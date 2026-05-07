@@ -1,0 +1,80 @@
+<div class="row gx-4">
+  <div class="col-lg-8">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <h2>{{#ifEquals mode 'create'}}Thêm phòng mới{{else}}Cập nhật phòng{{/ifEquals}}</h2>
+        <p class="text-muted">Vui lòng nhập đầy đủ thông tin phòng để thêm hoặc cập nhật hệ thống quản lý.</p>
+      </div>
+      <a href="/rooms" class="btn btn-outline-secondary">Quay lại danh sách</a>
+    </div>
+
+    {{#if error}}
+      <div class="alert alert-danger">{{error}}</div>
+    {{/if}}
+
+    <form method="post" action="{{formAction}}">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Mã phòng</label>
+          <input type="number" min="1" name="id_phong" class="form-control" value="{{room.id_phong}}" {{#unlessEquals mode 'create'}}disabled{{/unlessEquals}} placeholder="Để trống để tạo tự động (chỉ số nguyên)" />
+          {{#unlessEquals mode 'create'}}<div class="form-text">Mã phòng không thể sửa đổi khi cập nhật.</div>{{/unlessEquals}}
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Loại phòng</label>
+          <select name="loai_phong" class="form-select" required>
+            <option value="">Chọn loại phòng</option>
+            {{#each roomOptions}}
+              <option value="{{this}}" {{#ifEquals ../room.loai_phong this}}selected{{/ifEquals}}>{{this}}</option>
+            {{/each}}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Tầng</label>
+          <input type="number" min="1" name="tang" class="form-control" value="{{room.tang}}" required />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Trạng thái</label>
+          <select name="trang_thai" class="form-select" required>
+            {{#each statusOptions}}
+              <option value="{{value}}" {{#ifEquals ../room.trang_thai value}}selected{{/ifEquals}}>{{label}}</option>
+            {{/each}}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Số lượng giường</label>
+          <input type="number" min="1" name="so_luong_giuong" class="form-control" value="{{room.so_luong_giuong}}" required />
+        </div>
+
+        <div class="col-md-12">
+          <label class="form-label">Giá thuê/tháng (VND)</label>
+          <input type="number" min="0" step="1000" name="gia_thue" class="form-control" value="{{room.gia_thue}}" placeholder="VD: 5000000" required />
+        </div>
+
+        <div class="col-12 d-flex justify-content-end gap-2 mt-3">
+          <a href="/rooms" class="btn btn-secondary">Hủy</a>
+          <button type="submit" class="btn btn-primary">{{submitLabel}}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 room-preview-card">
+      <div class="card-body">
+        <h5 class="card-title">Xem trước</h5>
+        <p class="text-muted">Thông tin phòng mới sẽ được lưu vào hệ thống quản lý khi bạn nhấn nút.</p>
+        <ul class="list-group list-group-flush mt-3">
+          <li class="list-group-item"><strong>Mã phòng:</strong> {{room.id_phong}}</li>
+          <li class="list-group-item"><strong>Loại phòng:</strong> {{room.loai_phong}}</li>
+          <li class="list-group-item"><strong>Tầng:</strong> {{room.tang}}</li>
+          <li class="list-group-item"><strong>Trạng thái:</strong> {{room.trang_thai}}</li>
+          <li class="list-group-item"><strong>Số lượng giường:</strong> {{room.so_luong_giuong}}</li>
+          <li class="list-group-item"><strong>Giá thuê/tháng:</strong> {{room.gia_thue}}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

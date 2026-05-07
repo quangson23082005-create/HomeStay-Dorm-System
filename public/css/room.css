@@ -1,0 +1,21 @@
+.room-stats-card {
+  border-radius: 24px;
+}
+
+.room-stats-card .card-body {
+  min-height: 120px;
+}
+
+.table-actions .btn {
+  min-width: 72px;
+}
+
+.room-preview-card {
+  border-radius: 24px;
+}
+
+@media (max-width: 768px) {
+  .room-stats-card, .room-preview-card {
+    border-radius: 18px;
+  }
+}

@@ -1,0 +1,118 @@
+<div class="mb-4">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h2>Quản lý danh mục phòng</h2>
+      <p class="text-muted">Theo dõi, chỉnh sửa và quản lý danh sách phòng trong hệ thống.</p>
+    </div>
+    <a href="/rooms/new" class="btn btn-primary">Thêm phòng mới</a>
+  </div>
+
+  {{#if error}}
+    <div class="alert alert-danger">{{error}}</div>
+  {{/if}}
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0 room-stats-card">
+        <div class="card-body">
+          <small class="text-muted">Tổng số phòng</small>
+          <h3>{{stats.total}}</h3>
+          <span class="text-success">{{stats.available}} phòng trống</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0 room-stats-card">
+        <div class="card-body">
+          <small class="text-muted">Hiệu suất cho thuê</small>
+          <h3>{{stats.occupancyRate}}%</h3>
+          <span class="text-info">Tương ứng {{stats.total}} phòng</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0 room-stats-card">
+        <div class="card-body">
+          <small class="text-muted">Phòng còn lại</small>
+          <h3>{{stats.available}}</h3>
+          <span class="text-secondary">Đang sẵn sàng cho thuê</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form class="row g-3 align-items-end mb-4" method="get" action="/rooms">
+    <div class="col-md-4">
+      <label class="form-label">Tìm kiếm</label>
+      <input type="text" name="search" class="form-control" placeholder="Tìm theo mã, loại, trạng thái..." value="{{filters.search}}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Loại phòng</label>
+      <select name="loai_phong" class="form-select">
+        <option value="all">Tất cả loại phòng</option>
+        {{#each roomOptions}}
+          <option value="{{this}}" {{#ifEquals ../filters.loai_phong this}}selected{{/ifEquals}}>{{this}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Trạng thái</label>
+      <select name="trang_thai" class="form-select">
+        <option value="all">Tất cả trạng thái</option>
+        {{#each statusOptions}}
+          <option value="{{value}}" {{#ifEquals ../filters.trang_thai value}}selected{{/ifEquals}}>{{label}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Tầng</label>
+      <select name="tang" class="form-select">
+        <option value="all">Tất cả tầng</option>
+        {{#each floors}}
+          <option value="{{this}}" {{#ifEquals ../filters.tang this}}selected{{/ifEquals}}>Tầng {{this}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="col-md-2 d-grid">
+      <button type="submit" class="btn btn-outline-primary">Lọc</button>
+    </div>
+  </form>
+
+  <div class="table-responsive shadow-sm rounded">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th scope="col">Mã phòng</th>
+          <th scope="col">Loại phòng</th>
+          <th scope="col">Tầng</th>
+          <th scope="col">Trạng thái</th>
+          <th scope="col">Giá thuê/tháng</th>
+          <th scope="col" class="text-end">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#if rooms.length}}
+          {{#each rooms}}
+          <tr>
+            <td>{{id_phong}}</td>
+            <td>{{loai_phong}}</td>
+            <td>{{tang}}</td>
+            <td><span class="badge bg-{{badge_class}}">{{status_label}}</span></td>
+            <td>{{formatted_gia_thue}}</td>
+            <td class="text-end table-actions">
+              <a href="/rooms/{{id_phong}}/edit" class="btn btn-sm btn-outline-primary">Sửa</a>
+              <form method="post" action="/rooms/{{id_phong}}/delete" class="d-inline" onsubmit="return confirm('Xác nhận xoá phòng này?');">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+              </form>
+            </td>
+          </tr>
+          {{/each}}
+        {{else}}
+          <tr>
+            <td colspan="6" class="text-center text-muted">Không có phòng nào trong hệ thống.</td>
+          </tr>
+        {{/if}}
+      </tbody>
+    </table>
+  </div>
+</div>

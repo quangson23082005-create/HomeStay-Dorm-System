@@ -1,0 +1,22 @@
+{
+  "name": "homestay",
+  "version": "1.0.0",
+  "description": "A project in HCMUS",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.25.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-handlebars": "^8.0.3",
+    "handlebars": "^4.7.9",
+    "pg": "^8.20.0",
+    "sequelize": "^6.37.8"
+  }
+}
