@@ -22,8 +22,7 @@ const KHUNG_GIO_CHO_PHEP = [
   '13:00',
   '14:00', 
   '15:00',
-  '16:00',
-  '17:00'
+  '16:00'
 ];
 
 const isDateOnly = (value) => Boolean(value) && /^\d{4}-\d{2}-\d{2}$/.test(value);
@@ -41,6 +40,14 @@ const getDateOnlyString = (date) => {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+};
+
+const isPastDate = (dateStr) => {
+  const date = toLocalDateOnly(dateStr);
+  if (!date) return false;
+  const today = new Date();
+  const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  return date < todayOnly;
 };
 
 const validateCheckoutDateRange = (dateValue) => {
@@ -129,12 +136,20 @@ export const traCuu = async (loaiGiayTo, maTraCuu) => {
   const referenceInfo = await getReferenceInfo(lookupInput.loaiGiayTo, lookupInput.maTraCuu);
   const scheduleKey = toScheduleLookupKey(referenceInfo.id_hop_dong);
   const schedule = await checkoutScheduleModel.timTheoMaTraCuu(scheduleKey);
-  return {
+  
+  const result = {
     ...referenceInfo,
     schedule,
     loai_giay_to: lookupInput.loaiGiayTo,
     ma_tra_cuu: lookupInput.maTraCuu,
   };
+  
+  // Check if schedule date is in the past
+  if (schedule && schedule.ngay_tra_phong_du_kien) {
+    result.isPastDate = isPastDate(schedule.ngay_tra_phong_du_kien);
+  }
+  
+  return result;
 };
 
 // <<static>> LayTTKhach()
@@ -170,6 +185,12 @@ export const thayDoiNgay = async (payload) => {
   const lookupInput = normalizeLookupInput(payload.loai_giay_to, payload.ma_tra_cuu);
   const referenceInfo = await getReferenceInfo(lookupInput.loaiGiayTo, lookupInput.maTraCuu);
   const scheduleKey = toScheduleLookupKey(referenceInfo.id_hop_dong);
+
+  // Check if current schedule date is in the past - prevent editing past dates
+  const currentSchedule = await checkoutScheduleModel.timTheoMaTraCuu(scheduleKey);
+  if (currentSchedule && currentSchedule.ngay_tra_phong_du_kien && isPastDate(currentSchedule.ngay_tra_phong_du_kien)) {
+    throw new Error('Không thể chỉnh sửa lịch trả phòng đã quá hạn.');
+  }
 
   validateCheckoutDateRange(payload.ngay_tra_phong_du_kien);
 

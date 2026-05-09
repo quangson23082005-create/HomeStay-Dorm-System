@@ -1,11 +1,489 @@
-<div class="checkout-schedule-page">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <div>
-      <h2 class="mb-1">Xếp lịch trả phòng</h2>
-      <p class="text-muted mb-0">Tra cứu hồ sơ và xác nhận lịch trả phòng theo khung giờ.</p>
-    </div>
-  </div>
+<style>
+  .checkout-schedule-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
 
+  .csp-layout {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* ── Toast ── */
+  .toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+  }
+
+  .app-toast {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 280px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    animation: toastIn 0.25s ease;
+  }
+
+  .app-toast-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+  .app-toast-error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  .app-toast-fade    { opacity: 0; transition: opacity 0.3s; }
+  .app-toast-close   { background: none; border: none; cursor: pointer; font-size: 18px; line-height: 1; color: inherit; padding: 0; }
+
+  @keyframes toastIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── LEFT PANEL ── */
+  .csp-left {}
+
+  .csp-page-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1435b8;
+    letter-spacing: -0.4px;
+    margin-bottom: 5px;
+  }
+
+  .csp-page-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 20px;
+  }
+
+  .csp-lookup-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  /* Tab switcher */
+  .csp-tab-switcher {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1.5px solid #e5e7eb;
+    margin-bottom: 22px;
+  }
+
+  .csp-tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #9ca3af;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.15s;
+    font-family: inherit;
+  }
+
+  .csp-tab-btn.active {
+    color: #1435b8;
+  }
+
+  .csp-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1.5px;
+    left: 0; right: 0;
+    height: 2.5px;
+    background: #1435b8;
+    border-radius: 2px 2px 0 0;
+  }
+
+  /* Field label */
+  .csp-field-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #374151;
+    margin-bottom: 8px;
+  }
+
+  /* Search input */
+  .csp-search-wrap {
+    position: relative;
+    margin-bottom: 14px;
+  }
+
+  .csp-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: #9ca3af;
+    pointer-events: none;
+  }
+
+  .csp-search-input {
+    width: 100%;
+    padding: 11px 14px 11px 38px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1a1a2e;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+
+  .csp-search-input:focus { border-color: #1435b8; }
+  .csp-search-input::placeholder { color: #9ca3af; }
+
+  .csp-btn-lookup {
+    width: 100%;
+    padding: 12px;
+    background: #1435b8;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: inherit;
+  }
+
+  .csp-btn-lookup:hover { background: #1030a8; }
+
+  /* ── RIGHT PANEL ── */
+  .csp-right {
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  /* Customer info */
+  .csp-customer-header {
+    background: #1435b8;
+    color: #fff;
+    padding: 15px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .csp-customer-header-title {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .csp-customer-header-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .csp-info-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 18px 24px;
+    border-bottom: 1px solid #f0f2f5;
+    gap: 12px;
+  }
+
+  .csp-info-cell small {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .csp-info-cell strong {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  /* Time section */
+  .csp-time-section {
+    padding: 24px;
+  }
+
+  .csp-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 18px;
+  }
+
+  .csp-section-heading svg {
+    width: 26px;
+    height: 26px;
+    color: #1435b8;
+    flex-shrink: 0;
+  }
+
+  /* Date display */
+  .csp-date-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8f9fc;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+  }
+
+  .csp-date-box-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .csp-date-box svg {
+    width: 28px;
+    height: 28px;
+    color: #1435b8;
+    flex-shrink: 0;
+  }
+
+  .csp-date-label {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-bottom: 2px;
+  }
+
+  .csp-date-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .csp-change-link {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1435b8;
+    cursor: pointer;
+    text-decoration: none;
+    background: none;
+    border: none;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+
+  .csp-change-link svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Hidden date input for change-date flow */
+  .csp-date-input-wrap {
+    margin-bottom: 22px;
+  }
+
+  .csp-date-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1a1a2e;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+
+  .csp-date-input:focus { border-color: #1435b8; }
+
+  /* Time grid */
+  .csp-time-grid-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 12px;
+  }
+
+  .csp-time-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 26px;
+  }
+
+  .csp-time-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .csp-time-slot input[type="radio"] {
+    display: none;
+  }
+
+  .csp-time-slot span {
+    display: block;
+    width: 100%;
+    padding: 12px 8px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #374151;
+    text-align: center;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .csp-time-slot span:hover {
+    border-color: #1435b8;
+    color: #1435b8;
+  }
+
+  .csp-time-slot input[type="radio"]:checked + span {
+    background: #1435b8;
+    border-color: #1435b8;
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* Action buttons */
+  .csp-action-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .csp-btn-cancel {
+    padding: 10px 28px;
+    background: #fff;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+
+  .csp-btn-cancel:hover { border-color: #9ca3af; }
+
+  .csp-btn-confirm {
+    padding: 10px 32px;
+    background: #1435b8;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: inherit;
+  }
+
+  .csp-btn-confirm:hover { background: #1030a8; }
+  .csp-btn-confirm:disabled { background: #93aee8; cursor: not-allowed; }
+
+  .csp-btn-change {
+    padding: 10px 22px;
+    background: #fff;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+
+  .csp-btn-change:hover { border-color: #9ca3af; }
+
+  .csp-btn-danger {
+    padding: 10px 22px;
+    background: #fff;
+    border: 1.5px solid #fca5a5;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #dc2626;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    font-family: inherit;
+  }
+
+  .csp-btn-danger:hover { border-color: #ef4444; }
+
+  /* Modal */
+  .csp-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .csp-modal-overlay.active { display: flex; }
+
+  .csp-modal {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px 28px 22px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+  }
+
+  .csp-modal-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 10px;
+  }
+
+  .csp-modal-body {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 22px;
+    line-height: 1.6;
+  }
+
+  .csp-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+</style>
+
+<div class="checkout-schedule-page">
+
+  <!-- Toast container -->
   <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true">
     {{#if success}}
       <div class="app-toast app-toast-success server-toast" role="alert">
@@ -20,71 +498,127 @@
   </div>
   <div id="toast-data" data-success="{{success}}" data-error="{{error}}" style="display:none"></div>
 
-  <div class="card shadow-sm border-0 checkout-card">
-    <div class="card-body">
-      <form method="post" action="/checkout-schedules/lookup" class="mb-4">
-        <label class="form-label fw-semibold">Loại giấy tờ</label>
-        <div class="btn-group w-100 segmented-group mb-3" role="group">
-          {{#each loaiGiayToOptions}}
+  <div class="csp-layout">
+
+    <!-- ── LEFT PANEL ── -->
+    <div class="csp-left">
+      <h2 class="csp-page-title">Xếp lịch trả phòng</h2>
+      <p class="csp-page-subtitle">Vui lòng nhập thông tin để bắt đầu</p>
+
+      <div class="csp-lookup-card">
+        <form method="post" action="/checkout-schedules/lookup" id="lookup-form">
+
+          <!-- Tab switcher for loai_giay_to -->
+          <div class="csp-tab-switcher" role="group">
+            {{#each loaiGiayToOptions}}
+              <button
+                type="button"
+                class="csp-tab-btn {{#ifEquals ../form.loai_giay_to value}}active{{/ifEquals}}"
+                data-type="{{value}}"
+              >{{label}}</button>
+            {{/each}}
+          </div>
+
+          <input type="hidden" name="loai_giay_to" value="{{form.loai_giay_to}}">
+
+          <div class="csp-field-label">Mã tra cứu</div>
+          <div class="csp-search-wrap">
+            <svg class="csp-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
             <input
-              type="radio"
-              class="btn-check"
-              name="loai_giay_to"
-              id="loai-{{value}}"
-              value="{{value}}"
-              autocomplete="off"
-              {{#ifEquals ../form.loai_giay_to value}}checked{{/ifEquals}}
+              type="text"
+              name="ma_tra_cuu"
+              class="csp-search-input"
+              placeholder="Nhập mã hợp đồng hoặc mã phiếu đặt cọc"
+              value="{{form.ma_tra_cuu}}"
+              required
             >
-            <label class="btn btn-outline-primary" for="loai-{{value}}">{{label}}</label>
-          {{/each}}
+          </div>
+
+          <button type="submit" class="csp-btn-lookup">Tra cứu</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ── RIGHT PANEL ── -->
+    <div class="csp-right" id="lookup-result-area">
+      {{#if lookup}}
+
+        <!-- Customer info header -->
+        <div class="csp-customer-header">
+          <span class="csp-customer-header-title">Thông tin khách hàng</span>
+          <div class="csp-customer-header-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+          </div>
         </div>
 
-        <label class="form-label fw-semibold">Mã tra cứu</label>
-        <div class="input-group mb-3">
-          <input
-            type="text"
-            name="ma_tra_cuu"
-            class="form-control"
-            placeholder="Nhập mã hợp đồng hoặc mã phiếu đặt cọc"
-            value="{{form.ma_tra_cuu}}"
-            required
-          >
-          <button type="submit" class="btn btn-primary">Tra cứu</button>
+        <!-- Customer info row -->
+        <div class="csp-info-row">
+          <div class="csp-info-cell">
+            <small>Khách hàng</small>
+            <strong>{{lookup.ten_khach_hang}}</strong>
+          </div>
+          <div class="csp-info-cell">
+            <small>Số phòng</small>
+            <strong>{{lookup.so_phong}}</strong>
+          </div>
+          <div class="csp-info-cell">
+            <small>{{lookup.ngay_hien_thi_label}}</small>
+            <strong>{{lookup.ngay_nhan_phong}}</strong>
+          </div>
         </div>
-      </form>
 
-      <div id="lookup-result-area">
-        {{#if lookup}}
-          <div class="row g-3 mb-4">
-          <div class="col-md-4">
-            <div class="checkout-info-box">
-              <small class="text-muted">Khách hàng</small>
-              <div class="fw-semibold">{{lookup.ten_khach_hang}}</div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="checkout-info-box">
-              <small class="text-muted">Số phòng</small>
-              <div class="fw-semibold">{{lookup.so_phong}}</div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="checkout-info-box">
-              <small class="text-muted">{{lookup.ngay_hien_thi_label}}</small>
-              <div class="fw-semibold">{{lookup.ngay_nhan_phong}}</div>
-            </div>
-          </div>
+        <!-- Time selection -->
+        <div class="csp-time-section">
+          <div class="csp-section-heading">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+            </svg>
+            Chọn thời gian trả phòng
           </div>
 
-          <form method="post" class="mb-2" id="checkout-action-form">
+          <form method="post" id="checkout-action-form">
             <input type="hidden" name="loai_giay_to" value="{{form.loai_giay_to}}">
             <input type="hidden" name="ma_tra_cuu" value="{{form.ma_tra_cuu}}">
 
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Ngày trả phòng dự kiến</label>
+            <!-- Date display box (default view) -->
+            <div class="csp-date-box" id="csp-date-display">
+              <div class="csp-date-box-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                </svg>
+                <div>
+                  <div class="csp-date-label">Ngày trả phòng dự kiến</div>
+                  <div class="csp-date-value" id="csp-date-display-value">
+                    {{#if form.ngay_tra_phong_du_kien}}{{form.ngay_tra_phong_du_kien}}{{else}}Chưa chọn ngày{{/if}}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                class="csp-change-link"
+                id="btn-show-date-input"
+                aria-label="Thay đổi ngày"
+                {{#if lookup.isPastDate}}disabled{{/if}}
+                style="{{#if lookup.isPastDate}}opacity:0.5;cursor:not-allowed;{{/if}}"
+              >
+                Thay đổi
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Date picker (shown when changing) -->
+            <div class="csp-date-input-wrap" id="csp-date-picker" style="display:none;">
+              <div class="csp-field-label" style="margin-bottom:8px;">Ngày trả phòng dự kiến</div>
               <input
                 type="date"
-                class="form-control"
+                class="csp-date-input"
                 id="ngay-tra-phong-input"
                 name="ngay_tra_phong_du_kien"
                 value="{{form.ngay_tra_phong_du_kien}}"
@@ -94,205 +628,247 @@
               >
             </div>
 
-            <div class="mb-4">
-              <label class="form-label fw-semibold">Khung giờ</label>
-              <div class="checkout-time-grid">
-                {{#each khungGioOptions}}
-                  <label class="checkout-time-slot">
-                    <input
-                      type="radio"
-                      name="khung_gio"
-                      value="{{this}}"
-                      {{#ifEquals ../form.khung_gio this}}checked{{/ifEquals}}
-                      required
-                    >
-                    <span>{{this}}</span>
-                  </label>
-                {{/each}}
-              </div>
+            <!-- Time slots -->
+            <div class="csp-time-grid-label">Khung giờ còn trống</div>
+            <div class="csp-time-grid">
+              {{#each khungGioOptions}}
+                <label class="csp-time-slot">
+                  <input
+                    type="radio"
+                    name="khung_gio"
+                    value="{{this}}"
+                    {{#ifEquals ../form.khung_gio this}}checked{{/ifEquals}}
+                    {{#if ../lookup.isPastDate}}disabled{{/if}}
+                    required
+                  >
+                  <span>{{this}}</span>
+                </label>
+              {{/each}}
             </div>
 
-            <div class="d-flex flex-wrap gap-2">
-              <button class="btn btn-primary" type="button" id="btn-xac-nhan" {{#if lookup.schedule}}disabled{{/if}}>Xác nhận</button>
-              <button class="btn btn-outline-secondary" type="button" id="btn-thay-doi-ngay">Thay đổi ngày</button>
+            {{#if lookup.isPastDate}}
+              <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px;margin-bottom:16px;color:#991b1b;font-size:14px;">
+                ⚠️ Ngày trả phòng đã quá hạn, không thể chỉnh sửa.
+              </div>
+            {{/if}}
+
+            <!-- Action buttons -->
+            <div class="csp-action-row">
+              <button
+                type="button"
+                class="csp-btn-danger"
+                id="btn-huy"
+              >Huỷ</button>
+              <button
+                type="button"
+                class="csp-btn-change"
+                id="btn-thay-doi-ngay"
+                {{#if lookup.isPastDate}}disabled{{/if}}
+              >Thay đổi ngày</button>
+              <button
+                type="button"
+                class="csp-btn-confirm"
+                id="btn-xac-nhan"
+                {{#if lookup.schedule}}disabled{{/if}}
+                {{#if lookup.isPastDate}}disabled{{/if}}
+              >Xác nhận</button>
             </div>
           </form>
-          <form method="post" action="/checkout-schedules/cancel" class="d-inline">
-            <button class="btn btn-outline-danger" type="submit">Huỷ</button>
-          </form>
-        {{/if}}
-      </div>
+        </div>
+
+      {{/if}}
     </div>
-  </div>
+
+  </div><!-- /csp-layout -->
+
+  <!-- Cancel form (separate from checkout-action-form) -->
+  <form method="post" action="/checkout-schedules/cancel" id="cancel-form" style="display:none;"></form>
 
   <!-- Confirmation Modal -->
-  <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header border-0 bg-light">
-          <h5 class="modal-title fw-semibold">Xác nhận</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body" id="confirmModalBody">
-          <!-- Message will be inserted here -->
-        </div>
-        <div class="modal-footer border-0 bg-light">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Huỷ</button>
-          <button type="button" class="btn btn-primary" id="confirmModalBtn">Xác nhận</button>
-        </div>
+  <div class="csp-modal-overlay" id="confirmModalOverlay" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="csp-modal">
+      <div class="csp-modal-title" id="confirmModalTitle">Xác nhận</div>
+      <div class="csp-modal-body" id="confirmModalBody"></div>
+      <div class="csp-modal-footer">
+        <button type="button" class="csp-btn-cancel" id="confirmModalCancel">Huỷ</button>
+        <button type="button" class="csp-btn-confirm" id="confirmModalBtn">Xác nhận</button>
       </div>
     </div>
   </div>
+
 </div>
 
 <script>
-  (function () {
-    const TOAST_DURATION_MS = 3000;
+(function () {
+  const TOAST_DURATION_MS = 3000;
 
-    function createToast(message, type) {
-      const container = document.getElementById('toast-container');
-      if (!container) return;
-      const toast = document.createElement('div');
-      toast.className = 'app-toast ' + (type === 'success' ? 'app-toast-success' : 'app-toast-error');
-      toast.setAttribute('role', 'alert');
-      toast.innerHTML = `
-        <div class="app-toast-body">${message}</div>
-        <button class="app-toast-close" aria-label="Close">&times;</button>
-      `;
-      container.appendChild(toast);
+  /* ── Toast ── */
+  function createToast(message, type) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = 'app-toast ' + (type === 'success' ? 'app-toast-success' : 'app-toast-error');
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `<div class="app-toast-body">${message}</div><button class="app-toast-close" aria-label="Close">&times;</button>`;
+    container.appendChild(toast);
+    const remove = () => {
+      toast.classList.add('app-toast-fade');
+      setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+    };
+    toast.querySelector('.app-toast-close').addEventListener('click', remove);
+    setTimeout(remove, TOAST_DURATION_MS);
+  }
 
-      const remove = () => {
-        toast.classList.add('app-toast-fade');
-        setTimeout(() => container.removeChild(toast), 300);
-      };
+  function autoHideServerToast(toast) {
+    const container = document.getElementById('toast-container');
+    if (!toast || !container) return;
+    const remove = () => {
+      toast.classList.add('app-toast-fade');
+      setTimeout(() => { if (toast.parentNode === container) container.removeChild(toast); }, 300);
+    };
+    setTimeout(remove, TOAST_DURATION_MS);
+  }
 
-      toast.querySelector('.app-toast-close').addEventListener('click', remove);
-      setTimeout(remove, TOAST_DURATION_MS);
-    }
+  (function runToasts() {
+    const container = document.getElementById('toast-container');
+    const dataEl = document.getElementById('toast-data');
+    if (!dataEl || !container) return;
+    const serverToast = container.querySelector('.server-toast');
+    if (serverToast) { autoHideServerToast(serverToast); return; }
+    const success = dataEl.dataset.success;
+    const error = dataEl.dataset.error;
+    if (success && success.length) createToast(success, 'success');
+    else if (error && error.length) createToast(error, 'error');
+  })();
 
-    function autoHideServerToast(toast) {
-      if (!toast) return;
-      const container = document.getElementById('toast-container');
-      if (!container) return;
+  /* ── Date display / picker toggle ── */
+  const dateDisplay = document.getElementById('csp-date-display');
+  const datePicker  = document.getElementById('csp-date-picker');
+  const dateInput   = document.getElementById('ngay-tra-phong-input');
+  const dateDisplayValue = document.getElementById('csp-date-display-value');
+  const btnShowDateInput = document.getElementById('btn-show-date-input');
 
-      const remove = () => {
-        toast.classList.add('app-toast-fade');
-        setTimeout(() => {
-          if (toast.parentNode === container) {
-            container.removeChild(toast);
-          }
-        }, 300);
-      };
+  function formatDateVi(dateStr) {
+    if (!dateStr) return 'Chưa chọn ngày';
+    const [y, m, d] = dateStr.split('-');
+    const days = ['Chủ Nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+    const dow = days[new Date(+y, +m - 1, +d).getDay()];
+    return `${dow}, ${+d} tháng ${+m}, ${y}`;
+  }
 
-      setTimeout(remove, TOAST_DURATION_MS);
-    }
-
-    const run = function () {
-      const container = document.getElementById('toast-container');
-      const dataEl = document.getElementById('toast-data');
-      if (!dataEl || !container) return;
-      const serverToast = container.querySelector('.server-toast');
-      if (serverToast) {
-        autoHideServerToast(serverToast);
+  if (btnShowDateInput && datePicker && dateDisplay) {
+    btnShowDateInput.addEventListener('click', function (e) {
+      if (this.disabled) {
+        e.preventDefault();
         return;
       }
-      const success = dataEl.dataset.success;
-      const error = dataEl.dataset.error;
-      if (success && success.length) {
-        createToast(success, 'success');
-      } else if (error && error.length) {
-        createToast(error, 'error');
-      }
-    };
+      dateDisplay.style.display = 'none';
+      datePicker.style.display  = 'block';
+      if (dateInput) dateInput.focus();
+    });
+  }
 
-    function resetLookupState() {
-      const lookupArea = document.getElementById('lookup-result-area');
-      if (lookupArea) {
-        lookupArea.innerHTML = '';
-      }
+  if (dateInput && dateDisplayValue) {
+    if (dateInput.value) dateDisplayValue.textContent = formatDateVi(dateInput.value);
 
-      const actionForm = document.getElementById('checkout-action-form');
-      if (actionForm) {
-        actionForm.reset();
-      }
-
-      const hiddenFields = document.querySelectorAll('input[name="loai_giay_to"], input[name="ma_tra_cuu"]');
-      hiddenFields.forEach((input) => {
-        if (input.name === 'ma_tra_cuu') {
-          input.value = '';
-        }
-      });
-
-      document.querySelectorAll('.checkout-time-slot input').forEach((input) => {
-        input.checked = false;
-      });
-    }
-
-    document.addEventListener('change', function (event) {
-      if (event.target && event.target.name === 'loai_giay_to') {
-        resetLookupState();
+    dateInput.addEventListener('change', function () {
+      if (dateInput.value && dateDisplay && datePicker) {
+        dateDisplayValue.textContent = formatDateVi(dateInput.value);
+        datePicker.style.display  = 'none';
+        dateDisplay.style.display = 'flex';
       }
     });
 
-    function setupDateValidationMessage() {
-      const dateInput = document.getElementById('ngay-tra-phong-input');
-      if (!dateInput) return;
-      dateInput.addEventListener('invalid', function () {
-        if (dateInput.validity.rangeUnderflow) {
-          dateInput.setCustomValidity('Ngày trả phòng không được nhỏ hơn ngày hôm nay.');
-        } else if (dateInput.validity.rangeOverflow) {
-          dateInput.setCustomValidity('Ngày trả phòng không được quá 3 tháng kể từ ngày hôm nay.');
-        } else if (dateInput.validity.typeMismatch) {
-          dateInput.setCustomValidity('Vui lòng nhập ngày hợp lệ.');
-        } else {
-          dateInput.setCustomValidity('');
-        }
-      }, false);
-      dateInput.addEventListener('input', function () {
+    dateInput.addEventListener('invalid', function () {
+      if (dateInput.validity.rangeUnderflow)
+        dateInput.setCustomValidity('Ngày trả phòng không được nhỏ hơn ngày hôm nay.');
+      else if (dateInput.validity.rangeOverflow)
+        dateInput.setCustomValidity('Ngày trả phòng không được quá 3 tháng kể từ ngày hôm nay.');
+      else if (dateInput.validity.typeMismatch)
+        dateInput.setCustomValidity('Vui lòng nhập ngày hợp lệ.');
+      else
         dateInput.setCustomValidity('');
-      });
+    });
+
+    dateInput.addEventListener('input', function () { dateInput.setCustomValidity(''); });
+  }
+
+  /* ── Modal ── */
+  const overlay     = document.getElementById('confirmModalOverlay');
+  const modalBody   = document.getElementById('confirmModalBody');
+  const confirmBtn  = document.getElementById('confirmModalBtn');
+  const cancelBtn   = document.getElementById('confirmModalCancel');
+
+  function openModal(message, onConfirm) {
+    if (!overlay) return;
+    modalBody.textContent = message;
+    overlay.classList.add('active');
+    confirmBtn.onclick = function () { closeModal(); onConfirm(); };
+  }
+
+  function closeModal() {
+    if (overlay) overlay.classList.remove('active');
+  }
+
+  if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+  overlay && overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
+
+  function handleAction(action) {
+    const form = document.getElementById('checkout-action-form');
+    if (!form) return;
+    const msg = action === 'confirm'
+      ? 'Bạn có chắc chắn muốn xác nhận lịch trả phòng này không?'
+      : 'Bạn có chắc chắn muốn thay đổi ngày trả phòng này không?';
+    openModal(msg, function () {
+      form.action = action === 'confirm' ? '/checkout-schedules/confirm' : '/checkout-schedules/change-date';
+      form.submit();
+    });
+  }
+
+  document.getElementById('btn-xac-nhan')?.addEventListener('click', function (e) {
+    if (this.disabled) {
+      e.preventDefault();
+      return;
     }
+    handleAction('confirm');
+  });
+  
+  document.getElementById('btn-thay-doi-ngay')?.addEventListener('click', function (e) {
+    if (this.disabled) {
+      e.preventDefault();
+      return;
+    }
+    handleAction('change-date');
+  });
 
-    setupDateValidationMessage();
-
-    function handleConfirmAction(action) {
-      const form = document.getElementById('checkout-action-form');
-      const modal = document.getElementById('confirmModal');
-      const modalBody = document.getElementById('confirmModalBody');
-      const confirmBtn = document.getElementById('confirmModalBtn');
-      if (!form || !modal || !modalBody || !confirmBtn) return;
-
-      let confirmMessage = '';
-      if (action === 'confirm') {
-        confirmMessage = 'Bạn có chắc chắn muốn xác nhận lịch trả phòng này không?';
-      } else if (action === 'change-date') {
-        confirmMessage = 'Bạn có chắc chắn muốn thay đổi ngày trả phòng này không?';
+  /* ── Tab switching with form reset ── */
+  document.querySelectorAll('.csp-tab-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const newType = this.dataset.type;
+      const lookupForm = document.getElementById('lookup-form');
+      if (lookupForm) {
+        const loaiGiayToInput = lookupForm.querySelector('input[name="loai_giay_to"]');
+        if (loaiGiayToInput) loaiGiayToInput.value = newType;
+        
+        // Update active tab styling
+        document.querySelectorAll('.csp-tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Reset search input and lookup results
+        const searchInput = lookupForm.querySelector('input[name="ma_tra_cuu"]');
+        if (searchInput) searchInput.value = '';
+        
+        const resultArea = document.getElementById('lookup-result-area');
+        if (resultArea) resultArea.innerHTML = '';
       }
-
-      modalBody.textContent = confirmMessage;
-      const bsModal = new bootstrap.Modal(modal);
-      bsModal.show();
-
-      const handleConfirm = function () {
-        form.action = action === 'confirm' ? '/checkout-schedules/confirm' : '/checkout-schedules/change-date';
-        form.submit();
-      };
-
-      confirmBtn.onclick = handleConfirm;
-    }
-
-    document.getElementById('btn-xac-nhan')?.addEventListener('click', function () {
-      handleConfirmAction('confirm');
     });
-    document.getElementById('btn-thay-doi-ngay')?.addEventListener('click', function () {
-      handleConfirmAction('change-date');
-    });
+  });
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', run);
-    } else {
-      run();
-    }
-  })();
+  /* ── Cancel button ── */
+  document.getElementById('btn-huy')?.addEventListener('click', function () {
+    const cancelForm = document.getElementById('cancel-form');
+    if (cancelForm) cancelForm.submit();
+  });
+
+})();
 </script>
-
