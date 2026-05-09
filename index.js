@@ -5,8 +5,13 @@ import { fileURLToPath } from 'url';
 import { config } from './config/env.js';
 import sequelize from './config/database.js';
 import roomRoutes from './route/roomRoutes.js';
+import checkoutScheduleRoutes from './route/checkoutScheduleRoutes.js';
+import { seedCheckoutScheduleReferences } from './service/bootstrapService.js';
 import lichHenRoutes from './route/lichHenRoutes.js';
 import './model/roomModel.js'; // Import to register Room model
+import './model/contractModel.js';
+import './model/depositReceiptModel.js';
+import './model/checkoutScheduleModel.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,10 +64,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Sync database
 const initializeDatabase = async () => {
   try {
+    console.log('Starting database synchronization...');
     await sequelize.sync({ alter: false });
+    await seedCheckoutScheduleReferences();
     console.log('Database synchronized successfully.');
   } catch (error) {
-    console.error('Error syncing database:', error);
+    console.error('Error syncing database:', error && error.stack ? error.stack : error);
   }
 };
 
@@ -72,6 +79,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/', roomRoutes);
+app.use('/', checkoutScheduleRoutes);
 app.use('/lich-hen', lichHenRoutes);
 
 // Error handling middleware
