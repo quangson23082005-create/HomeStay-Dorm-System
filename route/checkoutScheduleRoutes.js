@@ -95,7 +95,10 @@ router.post('/checkout-schedules/confirm', async (req, res) => {
 
   try {
     await xacNhan(form);
+    const lookup = await traCuu(form.loai_giay_to, form.ma_tra_cuu);
     res.render('checkout-schedule', buildViewModel({
+      form,
+      lookup,
       success: 'Đã xác nhận lịch trả phòng thành công.',
     }));
   } catch (error) {
@@ -120,7 +123,10 @@ router.post('/checkout-schedules/change-date', async (req, res) => {
 
   try {
     await thayDoiNgay(form);
+    const lookup = await traCuu(form.loai_giay_to, form.ma_tra_cuu);
     res.render('checkout-schedule', buildViewModel({
+      form,
+      lookup,
       success: 'Đã thay đổi ngày trả phòng dự kiến.',
     }));
   } catch (error) {
