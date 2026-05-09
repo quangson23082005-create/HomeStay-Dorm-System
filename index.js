@@ -5,12 +5,15 @@ import { fileURLToPath } from 'url';
 import { config } from './config/env.js';
 import sequelize from './config/database.js';
 import roomRoutes from './route/roomRoutes.js';
+import lichHenRoutes from './route/lichHenRoutes.js';
 import './model/roomModel.js'; // Import to register Room model
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+const AVATAR_COLORS = ['#1a56db','#7c3aed','#0891b2','#059669','#dc2626','#d97706','#db2777','#16a34a'];
 
 // Set up Handlebars view engine
 app.engine('hbs', engine({
@@ -25,6 +28,24 @@ app.engine('hbs', engine({
     unlessEquals: function (left, right, options) {
       return String(left) !== String(right) ? options.fn(this) : options.inverse(this);
     },
+    initials: (name = '') =>
+      name.split(' ').filter(Boolean).slice(-2).map(w => w[0].toUpperCase()).join(''),
+    avatarColor: (name = '') => {
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) hash += name.charCodeAt(i);
+      return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+    },
+    formatDate: (dateStr) => {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+    },
+    formatCurrency: (val) =>
+      val ? '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 }) : '$0',
+    eq: (a, b) => a === b,
+    today: () => new Date().toISOString().split('T')[0],
+    add2940: val => parseInt(val) + 2940,
   },
 }));
 app.set('view engine', 'hbs');
@@ -51,6 +72,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/', roomRoutes);
+app.use('/lich-hen', lichHenRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
