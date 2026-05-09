@@ -1,0 +1,163 @@
+<!-- view/lich-hen-list.hbs -->
+<link rel="stylesheet" href="/css/lichHen.css" />
+
+<div class="breadcrumb">
+  <a href="/lich-hen">Lịch hẹn</a>
+  <span class="sep">›</span>
+  <span class="current">Danh sách phiếu chờ</span>
+</div>
+
+<div class="page-header">
+  <div>
+    <h1>Danh sách phiếu chờ</h1>
+    <p>Quản lý và lên lịch các yêu cầu đăng ký ký túc xá mới.</p>
+  </div>
+  <button class="btn-filter" id="toggleFilter">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
+    Bộ lọc
+  </button>
+</div>
+
+<!-- Filter Panel -->
+<form method="GET" action="/lich-hen" id="filterForm">
+  <div class="filter-panel {{#if filterOpen}}open{{/if}}" id="filterPanel">
+    <div class="filter-group">
+      <label>Tìm kiếm</label>
+      <input type="text" name="search" value="{{search}}" placeholder="Mã phiếu, SĐT hoặc tên khách hàng..." />
+    </div>
+    <div class="filter-group">
+      <label>Từ ngày</label>
+      <input type="date" name="ngayTu" value="{{ngayTu}}" />
+    </div>
+    <div class="filter-group">
+      <label>Đến ngày</label>
+      <input type="date" name="ngayDen" value="{{ngayDen}}" />
+    </div>
+    <div class="filter-actions">
+      <button type="submit" class="btn-apply">Áp dụng</button>
+      <button type="button" class="btn-reset" id="resetFilter">Xóa lọc</button>
+    </div>
+  </div>
+</form>
+
+<!-- Table Card -->
+<div class="table-card">
+  <div class="table-card-header">
+    <h2>Danh sách chờ</h2>
+  </div>
+
+  <table class="lh-table">
+    <thead>
+      <tr>
+        <th>Mã Phiếu</th>
+        <th>Tên khách hàng</th>
+        <th>Liên hệ</th>
+        <th>Ngày đăng ký</th>
+        <th>Thao tác</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each items}}
+      <tr>
+        <td style="font-weight:700; color:#1a56db;">{{this.id_phieu}}</td>
+        <td>
+          <div class="cust-cell">
+            <div class="cust-avatar" style="background:{{avatarColor this.ho_va_ten}};">
+              {{initials this.ho_va_ten}}
+            </div>
+            <div>
+              <div class="cust-name">{{this.ho_va_ten}}</div>
+              <div class="cust-sub">{{this.gioi_tinh}} • ID #{{add2940 this.id_phieu}}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="contact-line">{{this.sdt}}</div>
+          <div class="contact-email">{{this.email}}</div>
+        </td>
+        <td class="date-cell">{{formatDate this.ngay_dang_ky}}</td>
+        <td>
+          <a href="/lich-hen/{{this.id_phieu}}" class="btn-schedule">
+            Lên lịch hẹn
+          </a>
+        </td>
+      </tr>
+      {{else}}
+      <tr>
+        <td colspan="5" style="text-align:center; padding:40px; color:#9ca3af;">
+          Không có phiếu nào đang chờ lên lịch.
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  <div class="pagination">
+    <span class="pagination-info">Hiển thị {{itemCount}} trên {{total}} lượt đăng ký</span>
+    <div class="pagination-btns" id="paginationBtns"></div>
+  </div>
+</div>
+
+<script>
+  // ---- Filter toggle ----
+  const toggleBtn = document.getElementById('toggleFilter');
+  const panel = document.getElementById('filterPanel');
+  toggleBtn.addEventListener('click', () => panel.classList.toggle('open'));
+  document.getElementById('resetFilter').addEventListener('click', () => {
+    window.location.href = '/lich-hen';
+  });
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('search') || params.get('ngayTu') || params.get('ngayDen')) {
+    panel.classList.add('open');
+  }
+
+  // ---- Pagination numbers ----
+  const currentPage = {{page}};
+  const totalPages  = {{totalPages}};
+  const search  = encodeURIComponent('{{search}}');
+  const ngayTu  = encodeURIComponent('{{ngayTu}}');
+  const ngayDen = encodeURIComponent('{{ngayDen}}');
+
+  function pageUrl(p) {
+    return `?page=${p}&search=${search}&ngayTu=${ngayTu}&ngayDen=${ngayDen}`;
+  }
+
+  function buildPagination() {
+    const container = document.getElementById('paginationBtns');
+    if (totalPages <= 1) return;
+
+    // Tính tập hợp trang cần hiển thị: 2 đầu + 2 cuối + lân cận trang hiện tại
+    const show = new Set();
+    // 2 trang đầu
+    [1, 2].forEach(p => p <= totalPages && show.add(p));
+    // 2 trang cuối
+    [totalPages - 1, totalPages].forEach(p => p >= 1 && show.add(p));
+    // lân cận trang hiện tại
+    [currentPage - 1, currentPage, currentPage + 1].forEach(p => {
+      if (p >= 1 && p <= totalPages) show.add(p);
+    });
+
+    const pages = [...show].sort((a, b) => a - b);
+    let html = '';
+
+    // Nút prev
+    html += `<a href="${pageUrl(currentPage - 1)}" class="btn-page ${currentPage === 1 ? 'disabled' : ''}">‹</a>`;
+
+    let prev = null;
+    for (const p of pages) {
+      if (prev !== null && p - prev > 1) {
+        html += `<span class="btn-page" style="cursor:default;border:none;color:#9ca3af;">…</span>`;
+      }
+      html += `<a href="${pageUrl(p)}" class="btn-page ${p === currentPage ? 'active' : ''}">${p}</a>`;
+      prev = p;
+    }
+
+    // Nút next
+    html += `<a href="${pageUrl(currentPage + 1)}" class="btn-page ${currentPage === totalPages ? 'disabled' : ''}">›</a>`;
+
+    container.innerHTML = html;
+  }
+
+  buildPagination();
+</script>
