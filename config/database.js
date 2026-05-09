@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { config } from './env.js';
 
+let databaseAvailable = false;
+
 const sequelize = new Sequelize(
   config.database.name,
   config.database.user,
@@ -9,20 +11,38 @@ const sequelize = new Sequelize(
     host: config.database.host,
     port: config.database.port,
     dialect: 'postgres',
-    logging: false, // Set to console.log to see SQL queries
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+        servername: config.database.host,
+      },
+      options: config.database.options || undefined,
+    },
+    logging: false,
   }
 );
 
 // Test the connection
 const testConnection = async () => {
   try {
+    console.log('Attempting database connection:', {
+      host: config.database.host,
+      port: config.database.port,
+      database: config.database.name,
+      user: config.database.user,
+    });
     await sequelize.authenticate();
+    databaseAvailable = true;
     console.log('Database connection has been established successfully.');
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    databaseAvailable = false;
+    console.error('Unable to connect to the database:', error.message);
+    console.error(error.stack);
   }
 };
 
 testConnection();
 
+export const isDatabaseAvailable = () => databaseAvailable;
 export default sequelize;

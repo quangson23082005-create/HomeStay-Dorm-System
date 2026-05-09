@@ -1,0 +1,298 @@
+<div class="checkout-schedule-page">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h2 class="mb-1">Xếp lịch trả phòng</h2>
+      <p class="text-muted mb-0">Tra cứu hồ sơ và xác nhận lịch trả phòng theo khung giờ.</p>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true">
+    {{#if success}}
+      <div class="app-toast app-toast-success server-toast" role="alert">
+        <div class="app-toast-body">{{success}}</div>
+      </div>
+    {{/if}}
+    {{#if error}}
+      <div class="app-toast app-toast-error server-toast" role="alert">
+        <div class="app-toast-body">{{error}}</div>
+      </div>
+    {{/if}}
+  </div>
+  <div id="toast-data" data-success="{{success}}" data-error="{{error}}" style="display:none"></div>
+
+  <div class="card shadow-sm border-0 checkout-card">
+    <div class="card-body">
+      <form method="post" action="/checkout-schedules/lookup" class="mb-4">
+        <label class="form-label fw-semibold">Loại giấy tờ</label>
+        <div class="btn-group w-100 segmented-group mb-3" role="group">
+          {{#each loaiGiayToOptions}}
+            <input
+              type="radio"
+              class="btn-check"
+              name="loai_giay_to"
+              id="loai-{{value}}"
+              value="{{value}}"
+              autocomplete="off"
+              {{#ifEquals ../form.loai_giay_to value}}checked{{/ifEquals}}
+            >
+            <label class="btn btn-outline-primary" for="loai-{{value}}">{{label}}</label>
+          {{/each}}
+        </div>
+
+        <label class="form-label fw-semibold">Mã tra cứu</label>
+        <div class="input-group mb-3">
+          <input
+            type="text"
+            name="ma_tra_cuu"
+            class="form-control"
+            placeholder="Nhập mã hợp đồng hoặc mã phiếu đặt cọc"
+            value="{{form.ma_tra_cuu}}"
+            required
+          >
+          <button type="submit" class="btn btn-primary">Tra cứu</button>
+        </div>
+      </form>
+
+      <div id="lookup-result-area">
+        {{#if lookup}}
+          <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="checkout-info-box">
+              <small class="text-muted">Khách hàng</small>
+              <div class="fw-semibold">{{lookup.ten_khach_hang}}</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="checkout-info-box">
+              <small class="text-muted">Số phòng</small>
+              <div class="fw-semibold">{{lookup.so_phong}}</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="checkout-info-box">
+              <small class="text-muted">{{lookup.ngay_hien_thi_label}}</small>
+              <div class="fw-semibold">{{lookup.ngay_nhan_phong}}</div>
+            </div>
+          </div>
+          </div>
+
+          <form method="post" class="mb-2" id="checkout-action-form">
+            <input type="hidden" name="loai_giay_to" value="{{form.loai_giay_to}}">
+            <input type="hidden" name="ma_tra_cuu" value="{{form.ma_tra_cuu}}">
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Ngày trả phòng dự kiến</label>
+              <input
+                type="date"
+                class="form-control"
+                id="ngay-tra-phong-input"
+                name="ngay_tra_phong_du_kien"
+                value="{{form.ngay_tra_phong_du_kien}}"
+                min="{{ngayTraPhongMin}}"
+                max="{{ngayTraPhongMax}}"
+                required
+              >
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Khung giờ</label>
+              <div class="checkout-time-grid">
+                {{#each khungGioOptions}}
+                  <label class="checkout-time-slot">
+                    <input
+                      type="radio"
+                      name="khung_gio"
+                      value="{{this}}"
+                      {{#ifEquals ../form.khung_gio this}}checked{{/ifEquals}}
+                      required
+                    >
+                    <span>{{this}}</span>
+                  </label>
+                {{/each}}
+              </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-primary" type="button" id="btn-xac-nhan" {{#if lookup.schedule}}disabled{{/if}}>Xác nhận</button>
+              <button class="btn btn-outline-secondary" type="button" id="btn-thay-doi-ngay">Thay đổi ngày</button>
+            </div>
+          </form>
+          <form method="post" action="/checkout-schedules/cancel" class="d-inline">
+            <button class="btn btn-outline-danger" type="submit">Huỷ</button>
+          </form>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0 bg-light">
+          <h5 class="modal-title fw-semibold">Xác nhận</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="confirmModalBody">
+          <!-- Message will be inserted here -->
+        </div>
+        <div class="modal-footer border-0 bg-light">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Huỷ</button>
+          <button type="button" class="btn btn-primary" id="confirmModalBtn">Xác nhận</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const TOAST_DURATION_MS = 3000;
+
+    function createToast(message, type) {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = 'app-toast ' + (type === 'success' ? 'app-toast-success' : 'app-toast-error');
+      toast.setAttribute('role', 'alert');
+      toast.innerHTML = `
+        <div class="app-toast-body">${message}</div>
+        <button class="app-toast-close" aria-label="Close">&times;</button>
+      `;
+      container.appendChild(toast);
+
+      const remove = () => {
+        toast.classList.add('app-toast-fade');
+        setTimeout(() => container.removeChild(toast), 300);
+      };
+
+      toast.querySelector('.app-toast-close').addEventListener('click', remove);
+      setTimeout(remove, TOAST_DURATION_MS);
+    }
+
+    function autoHideServerToast(toast) {
+      if (!toast) return;
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const remove = () => {
+        toast.classList.add('app-toast-fade');
+        setTimeout(() => {
+          if (toast.parentNode === container) {
+            container.removeChild(toast);
+          }
+        }, 300);
+      };
+
+      setTimeout(remove, TOAST_DURATION_MS);
+    }
+
+    const run = function () {
+      const container = document.getElementById('toast-container');
+      const dataEl = document.getElementById('toast-data');
+      if (!dataEl || !container) return;
+      const serverToast = container.querySelector('.server-toast');
+      if (serverToast) {
+        autoHideServerToast(serverToast);
+        return;
+      }
+      const success = dataEl.dataset.success;
+      const error = dataEl.dataset.error;
+      if (success && success.length) {
+        createToast(success, 'success');
+      } else if (error && error.length) {
+        createToast(error, 'error');
+      }
+    };
+
+    function resetLookupState() {
+      const lookupArea = document.getElementById('lookup-result-area');
+      if (lookupArea) {
+        lookupArea.innerHTML = '';
+      }
+
+      const actionForm = document.getElementById('checkout-action-form');
+      if (actionForm) {
+        actionForm.reset();
+      }
+
+      const hiddenFields = document.querySelectorAll('input[name="loai_giay_to"], input[name="ma_tra_cuu"]');
+      hiddenFields.forEach((input) => {
+        if (input.name === 'ma_tra_cuu') {
+          input.value = '';
+        }
+      });
+
+      document.querySelectorAll('.checkout-time-slot input').forEach((input) => {
+        input.checked = false;
+      });
+    }
+
+    document.addEventListener('change', function (event) {
+      if (event.target && event.target.name === 'loai_giay_to') {
+        resetLookupState();
+      }
+    });
+
+    function setupDateValidationMessage() {
+      const dateInput = document.getElementById('ngay-tra-phong-input');
+      if (!dateInput) return;
+      dateInput.addEventListener('invalid', function () {
+        if (dateInput.validity.rangeUnderflow) {
+          dateInput.setCustomValidity('Ngày trả phòng không được nhỏ hơn ngày hôm nay.');
+        } else if (dateInput.validity.rangeOverflow) {
+          dateInput.setCustomValidity('Ngày trả phòng không được quá 3 tháng kể từ ngày hôm nay.');
+        } else if (dateInput.validity.typeMismatch) {
+          dateInput.setCustomValidity('Vui lòng nhập ngày hợp lệ.');
+        } else {
+          dateInput.setCustomValidity('');
+        }
+      }, false);
+      dateInput.addEventListener('input', function () {
+        dateInput.setCustomValidity('');
+      });
+    }
+
+    setupDateValidationMessage();
+
+    function handleConfirmAction(action) {
+      const form = document.getElementById('checkout-action-form');
+      const modal = document.getElementById('confirmModal');
+      const modalBody = document.getElementById('confirmModalBody');
+      const confirmBtn = document.getElementById('confirmModalBtn');
+      if (!form || !modal || !modalBody || !confirmBtn) return;
+
+      let confirmMessage = '';
+      if (action === 'confirm') {
+        confirmMessage = 'Bạn có chắc chắn muốn xác nhận lịch trả phòng này không?';
+      } else if (action === 'change-date') {
+        confirmMessage = 'Bạn có chắc chắn muốn thay đổi ngày trả phòng này không?';
+      }
+
+      modalBody.textContent = confirmMessage;
+      const bsModal = new bootstrap.Modal(modal);
+      bsModal.show();
+
+      const handleConfirm = function () {
+        form.action = action === 'confirm' ? '/checkout-schedules/confirm' : '/checkout-schedules/change-date';
+        form.submit();
+      };
+
+      confirmBtn.onclick = handleConfirm;
+    }
+
+    document.getElementById('btn-xac-nhan')?.addEventListener('click', function () {
+      handleConfirmAction('confirm');
+    });
+    document.getElementById('btn-thay-doi-ngay')?.addEventListener('click', function () {
+      handleConfirmAction('change-date');
+    });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  })();
+</script>
+
