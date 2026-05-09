@@ -18,5 +18,14 @@
     "handlebars": "^4.7.9",
     "pg": "^8.20.0",
     "sequelize": "^6.37.8"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quangson23082005-create/HomeStay-Dorm-System.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/quangson23082005-create/HomeStay-Dorm-System/issues"
+  },
+  "homepage": "https://github.com/quangson23082005-create/HomeStay-Dorm-System#readme"
 }
