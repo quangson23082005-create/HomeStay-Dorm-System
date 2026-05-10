@@ -1,11 +1,11 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../config/database.js';
-import { isDatabaseAvailable } from '../config/database.js';
+import { DataTypes } from "sequelize";
+import sequelize from "../config/database.js";
+import { isDatabaseAvailable } from "../config/database.js";
 
-const buildMaPhieu = (idPhieu) => `PDC-${String(idPhieu).padStart(4, '0')}`;
+const buildMaPhieu = (idPhieu) => `PDC-${String(idPhieu).padStart(4, "0")}`;
 
 const parseMaPhieu = (maPhieu) => {
-  const value = String(maPhieu || '').trim();
+  const value = String(maPhieu || "").trim();
   const match = value.match(/^PDC-(\d+)$/i) || value.match(/^(\d+)$/);
   return match ? Number(match[1]) : null;
 };
@@ -21,41 +21,45 @@ const toAppReceipt = (receipt) => {
   };
 };
 
-const DepositReceipt = sequelize.define('phieu_dat_coc', {
-  id_phieu: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    allowNull: false,
-    autoIncrement: true,
+const DepositReceipt = sequelize.define(
+  "phieu_dat_coc",
+  {
+    id_phieu: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      autoIncrement: true,
+    },
+    thoi_gian: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    so_tien_coc: {
+      type: DataTypes.DECIMAL,
+      allowNull: true,
+    },
+    trang_thai: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    id_phieu_dk: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    id_khach_hang: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    id_nhan_su: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
-  thoi_gian: {
-    type: DataTypes.DATE,
-    allowNull: true,
+  {
+    timestamps: false,
+    tableName: "phieu_dat_coc",
   },
-  so_tien_coc: {
-    type: DataTypes.DECIMAL,
-    allowNull: true,
-  },
-  trang_thai: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  id_phieu_dk: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-  id_khach_hang: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-  id_nhan_su: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-}, {
-  timestamps: false,
-  tableName: 'phieu_dat_coc',
-});
+);
 
 const depositMemoryStore = new Map();
 
@@ -65,13 +69,13 @@ export const phatSinh = async () => {
     const latestId = ids.sort().at(-1);
     const current = latestId?.match(/PDC-(\d+)/)?.[1];
     const nextNumber = (current ? Number(current) : 0) + 1;
-    return `PDC-${String(nextNumber).padStart(4, '0')}`;
+    return `PDC-${String(nextNumber).padStart(4, "0")}`;
   }
   const latest = await DepositReceipt.findOne({
-    order: [['id_phieu', 'DESC']],
+    order: [["id_phieu", "DESC"]],
   });
   const nextNumber = (latest?.id_phieu || 0) + 1;
-  return `PDC-${String(nextNumber).padStart(4, '0')}`;
+  return `PDC-${String(nextNumber).padStart(4, "0")}`;
 };
 
 export const taoPhieu = async (phieuDatCoc) => {
@@ -88,7 +92,7 @@ export const capNhatTrangThai = async (id, trangThai) => {
   if (!isDatabaseAvailable()) {
     const existing = depositMemoryStore.get(id);
     if (!existing) {
-      throw new Error('Phiếu đặt cọc không tồn tại.');
+      throw new Error("Phiếu đặt cọc không tồn tại.");
     }
     const updated = { ...existing, trang_thai: trangThai };
     depositMemoryStore.set(id, updated);
@@ -96,7 +100,7 @@ export const capNhatTrangThai = async (id, trangThai) => {
   }
   const receipt = await DepositReceipt.findByPk(parseMaPhieu(id) || id);
   if (!receipt) {
-    throw new Error('Phiếu đặt cọc không tồn tại.');
+    throw new Error("Phiếu đặt cọc không tồn tại.");
   }
   await receipt.update({ trang_thai: trangThai });
   return toAppReceipt(receipt.toJSON());
@@ -110,7 +114,9 @@ export const kiemTra = async (maPhieu) => {
   if (!parsedId) {
     return false;
   }
-  const receipt = await DepositReceipt.findByPk(parsedId, { attributes: ['id_phieu'] });
+  const receipt = await DepositReceipt.findByPk(parsedId, {
+    attributes: ["id_phieu"],
+  });
   return Boolean(receipt);
 };
 
@@ -131,6 +137,7 @@ export const layTT = async (maPhieu) => {
         p.so_tien_coc,
         p.trang_thai,
         COALESCE(kh_pdc.ho_va_ten, kh_pdk.ho_va_ten) AS ten_khach_hang,
+        COALESCE(kh_pdc.sdt, kh_pdk.sdt) AS sdt,
         room.id_phong AS so_phong,
         COALESCE(pdk.thoi_gian_o_du_kien, p.thoi_gian::date) AS ngay_nhan_phong,
         p.thoi_gian::date AS ngay_dat_coc
@@ -151,7 +158,7 @@ export const layTT = async (maPhieu) => {
       WHERE p.id_phieu = :idPhieu
       LIMIT 1
     `,
-    { replacements: { idPhieu: parsedId } }
+    { replacements: { idPhieu: parsedId } },
   );
 
   const row = rows[0];
@@ -162,8 +169,7 @@ export const layTT = async (maPhieu) => {
   return {
     ...row,
     ma_phieu: buildMaPhieu(row.id_phieu),
-    so_phong: row.so_phong ? `P${row.so_phong}` : '',
-    ngay_nhan_phong: row.ngay_nhan_phong || row.ngay_dat_coc || '',
+    so_phong: row.so_phong ? `P${row.so_phong}` : "",
+    ngay_nhan_phong: row.ngay_nhan_phong || row.ngay_dat_coc || "",
   };
 };
-
