@@ -8,6 +8,7 @@ import sequelize from './config/database.js';
 import roomRoutes from './route/roomRoutes.js';
 import lichHenRoutes from './route/lichHenRoutes.js';
 import authRoutes from './route/authRoutes.js';
+import authService from './service/authService.js';
 import { requireLogin } from './middleware/auth.js';
 import './model/roomModel.js';
 
