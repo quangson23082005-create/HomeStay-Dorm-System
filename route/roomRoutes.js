@@ -37,7 +37,11 @@ const formatRoom = (room) => {
   };
 };
 
-router.get('/rooms', async (req, res) => {
+router.get('/quan-ly', (req, res) => {
+  res.redirect('/quan-ly/rooms');
+});
+
+router.get('/quan-ly/rooms', async (req, res) => {
   try {
     const rooms = await listRooms(req.query);
     const formattedRooms = rooms.map(formatRoom);
@@ -72,7 +76,7 @@ router.get('/rooms', async (req, res) => {
   }
 });
 
-router.get('/rooms/new', (req, res) => {
+router.get('/quan-ly/rooms/new', (req, res) => {
   res.render('room-form', {
     title: 'Thêm phòng mới',
     mode: 'create',
@@ -86,15 +90,15 @@ router.get('/rooms/new', (req, res) => {
     },
     roomOptions,
     statusOptions,
-    formAction: '/rooms/new',
+    formAction: '/quan-ly/rooms/new',
     submitLabel: 'Lưu thông tin',
   });
 });
 
-router.post('/rooms/new', async (req, res) => {
+router.post('/quan-ly/rooms/new', async (req, res) => {
   try {
     await addRoom(req.body);
-    res.redirect('/rooms');
+    res.redirect('/quan-ly/rooms');
   } catch (error) {
     res.status(400).render('room-form', {
       title: 'Thêm phòng mới',
@@ -105,14 +109,14 @@ router.post('/rooms/new', async (req, res) => {
       },
       roomOptions,
       statusOptions,
-      formAction: '/rooms/new',
+      formAction: '/quan-ly/rooms/new',
       submitLabel: 'Lưu thông tin',
       error: error.message,
     });
   }
 });
 
-router.get('/rooms/:id/edit', async (req, res) => {
+router.get('/quan-ly/rooms/:id/edit', async (req, res) => {
   try {
     const room = await getRoom(req.params.id);
     res.render('room-form', {
@@ -121,7 +125,7 @@ router.get('/rooms/:id/edit', async (req, res) => {
       room,
       roomOptions,
       statusOptions,
-      formAction: `/rooms/${room.id_phong}/edit`,
+      formAction: `/quan-ly/rooms/${room.id_phong}/edit`,
       submitLabel: 'Cập nhật',
     });
   } catch (error) {
@@ -138,17 +142,17 @@ router.get('/rooms/:id/edit', async (req, res) => {
       },
       roomOptions,
       statusOptions,
-      formAction: `/rooms/${req.params.id}/edit`,
+      formAction: `/quan-ly/rooms/${req.params.id}/edit`,
       submitLabel: 'Cập nhật',
       error: error.message,
     });
   }
 });
 
-router.post('/rooms/:id/edit', async (req, res) => {
+router.post('/quan-ly/rooms/:id/edit', async (req, res) => {
   try {
     await editRoom(req.params.id, req.body);
-    res.redirect('/rooms');
+    res.redirect('/quan-ly/rooms');
   } catch (error) {
     res.status(400).render('room-form', {
       title: 'Cập nhật thông tin phòng',
@@ -159,17 +163,17 @@ router.post('/rooms/:id/edit', async (req, res) => {
       },
       roomOptions,
       statusOptions,
-      formAction: `/rooms/${req.params.id}/edit`,
+      formAction: `/quan-ly/rooms/${req.params.id}/edit`,
       submitLabel: 'Cập nhật',
       error: error.message,
     });
   }
 });
 
-router.post('/rooms/:id/delete', async (req, res) => {
+router.post('/quan-ly/rooms/:id/delete', async (req, res) => {
   try {
     await removeRoom(req.params.id);
-    res.redirect('/rooms');
+    res.redirect('/quan-ly/rooms');
   } catch (error) {
     const rooms = await listRooms({});
     const formattedRooms = rooms.map(formatRoom);
