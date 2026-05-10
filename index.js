@@ -7,6 +7,7 @@ import { config } from './config/env.js';
 import sequelize from './config/database.js';
 import roomRoutes from './route/roomRoutes.js';
 import checkoutScheduleRoutes from './route/checkoutScheduleRoutes.js';
+import xacNhanThuePhongRoutes from './route/xacNhanThuePhongRoutes.js';
 import { seedCheckoutScheduleReferences } from './service/bootstrapService.js';
 import lichHenRoutes from './route/lichHenRoutes.js';
 import authRoutes from './route/authRoutes.js';
@@ -16,6 +17,10 @@ import './model/roomModel.js';
 import './model/contractModel.js';
 import './model/depositReceiptModel.js';
 import './model/checkoutScheduleModel.js';
+import './model/khachHangModel.js';
+import './model/phieuDangKyModel.js';
+import './model/phieuDangKyGhepModel.js';
+import './model/phieuDangKyNguyenCanModel.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -109,6 +114,7 @@ app.get('/', (req, res) => {
 // Các route cần đăng nhập
 app.use('/', requireLogin, roomRoutes);
 app.use('/lich-hen', requireLogin, lichHenRoutes);
+app.use('/', requireLogin, xacNhanThuePhongRoutes);
 app.use('/', checkoutScheduleRoutes);
 
 // ---- Error handlers ----
