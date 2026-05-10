@@ -13,7 +13,6 @@ export const taoPhieu = async (phieuDatCoc) => {
     // additional fields for memory-mode or later use
     ten_khach_hang: phieuDatCoc.ten_khach_hang?.trim(),
     so_phong: phieuDatCoc.so_phong?.trim(),
-    ngay_nhan_phong: phieuDatCoc.ngay_nhan_phong,
   };
 
   if (!payload.ma_phieu || !payload.thoi_gian) {
