@@ -1,12 +1,12 @@
 import express from "express";
 import * as depositService from "../service/depositReceiptService.js";
 import * as contractService from "../service/contractService.js";
-import { requireRole } from "../middleware/auth.js";
+import { requireLogin, requireRole } from "../middleware/auth.js";
 import sequelize from "../config/database.js";
 
 const router = express.Router();
 
-router.get("/phieu-dat-coc/new", requireRole("khachhang"), async (req, res) => {
+router.get("/phieu-dat-coc/new", requireLogin, async (req, res) => {
   console.log("=== GET /phieu-dat-coc/new HANDLER CALLED ===");
   try {
     const ma_phieu = await depositService.phatSinh();
@@ -57,7 +57,7 @@ router.get("/phieu-dat-coc/new", requireRole("khachhang"), async (req, res) => {
 
 router.post(
   "/phieu-dat-coc/new",
-  requireRole("khachhang"),
+  requireLogin,
   async (req, res) => {
     try {
       // Lấy khách hàng id=1 từ database
@@ -83,8 +83,8 @@ router.post(
         ten_khach_hang: tenKhachHang,
         so_phong: req.body.so_phong,
       };
-
-      await depositService.taoPhieu(payload);
+    
+    await depositService.taoPhieu(payload);
       res.redirect(`/phieu-dat-coc/${encodeURIComponent(payload.ma_phieu)}`);
     } catch (error) {
       res.status(400).render("deposit-form", {
