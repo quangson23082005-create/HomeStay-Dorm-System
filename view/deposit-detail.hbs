@@ -1,0 +1,42 @@
+<div
+  style="max-width:820px;margin:0 auto;background:#fff;padding:28px;border-radius:8px;"
+>
+  <h2 style="margin-bottom:8px">PHIẾU ĐẶT CỌC</h2>
+
+  <div
+    style="border:1px solid #e6eef8;padding:16px;border-radius:8px;margin-bottom:12px;background:#fbfdff"
+  >
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-weight:700">Mã phiếu: {{phieu.ma_phieu}}</div>
+        <div style="color:#616161">Ngày lập:
+          {{formatDate phieu.thoi_gian}}</div>
+      </div>
+      <div style="text-align:right">
+        <div
+          style="font-weight:700;font-size:20px;color:#0ea5e9"
+        >{{phieu.so_tien_coc}} đ</div>
+        <div style="color:#6b7280">{{phieu.trang_thai}}</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:18px">
+    <div style="flex:1">
+      <h4>Thông tin khách hàng</h4>
+      <div>{{phieu.ten_khach_hang}}</div>
+    </div>
+    <div style="flex:1">
+      <h4>Thông tin phòng</h4>
+      <div>Số phòng: {{phieu.so_phong}}</div>
+      <div>Ngày nhận phòng: {{phieu.ngay_nhan_phong}}</div>
+    </div>
+  </div>
+
+  <div style="margin-top:18px;display:flex;justify-content:flex-end">
+    <a
+      href="/phieu-dat-coc/new"
+      style="padding:10px 14px;border-radius:8px;background:#0ea5e9;color:#fff;text-decoration:none"
+    >Lập phiếu mới</a>
+  </div>
+</div>

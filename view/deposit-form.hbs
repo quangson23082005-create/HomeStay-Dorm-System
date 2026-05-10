@@ -1,0 +1,89 @@
+<div
+  style="max-width:820px;margin:0 auto;background:#fff;padding:28px;border-radius:8px;"
+>
+  <h2 style="margin-bottom:14px">PHIẾU ĐẶT CỌC</h2>
+
+  {{#if error}}
+    <div
+      style="background:#fee2e2;color:#b91c1c;padding:12px;border-radius:6px;margin-bottom:12px"
+    >{{error}}</div>
+  {{/if}}
+
+  <form action="{{formAction}}" method="post">
+    <div style="display:flex;gap:12px;margin-bottom:12px">
+      <div style="flex:1">
+        <label>Mã phiếu</label>
+        <input
+          type="text"
+          name="ma_phieu"
+          value="{{phieu.ma_phieu}}"
+          readonly
+          style="width:100%;padding:10px;border-radius:6px;border:1px solid #e5e7eb"
+        />
+      </div>
+      <div style="flex:1">
+        <label>Ngày lập</label>
+        <input
+          type="date"
+          name="ngay_lap"
+          value="{{phieu.ngay_lap}}"
+          style="width:100%;padding:10px;border-radius:6px;border:1px solid #e5e7eb"
+        />
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:12px">
+      <div style="flex:1">
+        <label>Họ và tên khách</label>
+        <input
+          type="text"
+          name="ten_khach_hang"
+          value="{{phieu.ten_khach_hang}}"
+          readonly
+          style="width:100%;padding:10px;border-radius:6px;border:1px solid #e5e7eb;background:#f9fafb"
+        />
+      </div>
+      <div style="flex:1">
+        <label>Số phòng</label>
+        <input
+          type="text"
+          name="so_phong"
+          value="{{phieu.so_phong}}"
+          style="width:100%;padding:10px;border-radius:6px;border:1px solid #e5e7eb"
+        />
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:12px">
+      <div style="flex:1">
+        <label>Ngày nhận phòng</label>
+        <input
+          type="date"
+          name="ngay_nhan_phong"
+          value="{{phieu.ngay_nhan_phong}}"
+          style="width:100%;padding:10px;border-radius:6px;border:1px solid #e5e7eb"
+        />
+      </div>
+      <div style="flex:1">
+        <label>Số tiền đặt cọc (VND)</label>
+        <input
+          type="number"
+          name="so_tien_coc"
+          value="{{phieu.so_tien_coc}}"
+          style="width:100%;padding:10px;border-radius:6px;border:1px solid #e5e7eb"
+        />
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:18px">
+      <a
+        href="/"
+        style="padding:10px 16px;border-radius:6px;border:1px solid #e5e7eb;color:#374151;text-decoration:none"
+      >Hủy</a>
+      <button
+        type="submit"
+        style="background:#0ea5e9;color:#fff;padding:10px 18px;border-radius:8px;border:none"
+      >{{submitLabel}}</button>
+    </div>
+  </form>
+</div>
