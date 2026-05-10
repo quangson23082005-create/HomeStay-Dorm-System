@@ -86,7 +86,8 @@ app.use((req, res, next) => {
 const initializeDatabase = async () => {
   try {
     console.log('Starting database synchronization...');
-    await sequelize.sync({ alter: false });
+    await sequelize.sync({ alter: true });
+    // await sequelize.sync({ force: true });
     await seedCheckoutScheduleReferences();
     console.log('Database synchronized successfully.');
   } catch (error) {

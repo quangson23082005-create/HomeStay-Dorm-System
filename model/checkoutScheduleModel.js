@@ -48,7 +48,7 @@ const CheckoutSchedule = sequelize.define('xep_lich_tra_phong', {
     {
       unique: true,
       fields: ['ma_tra_cuu'],
-      name: 'xep_lich_tra_phong_unique_hop_dong',
+      // name: 'xep_lich_tra_phong_unique_hop_dong',
     },
   ],
 });
