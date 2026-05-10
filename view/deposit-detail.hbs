@@ -1,0 +1,59 @@
+<div
+  style="max-width:900px;margin:0 auto;background:#fff;padding:32px;border-radius:8px;border:1px solid #dbeafe"
+>
+  {{! Success Message }}
+  <div style="text-align:center;margin-bottom:40px">
+    <div
+      style="width:80px;height:80px;background:#e0f2fe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:40px"
+    >✓</div>
+    <h1
+      style="font-size:28px;font-weight:700;color:#1e40af;margin-bottom:12px"
+    >Lập phiếu đặt cọc thành công!</h1>
+    <p style="font-size:15px;color:#6b7280;margin-bottom:24px">Hồ sơ đặt cọc của
+      khách hàng
+      <strong>{{customerName}}</strong>
+      đã được khởi tạo thành công trên hệ thống.</p>
+
+    {{! Summary Card }}
+    <div
+      style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:24px;margin-bottom:32px;text-align:left"
+    >
+      <div
+        style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px"
+      >
+        <div>
+          <div
+            style="font-size:12px;color:#6b7280;font-weight:600;margin-bottom:6px"
+          >MÃ PHIẾU</div>
+          <div
+            style="font-size:18px;font-weight:700;color:#1e40af"
+          >{{phieu.ma_phieu}}</div>
+        </div>
+        <div>
+          <div
+            style="font-size:12px;color:#6b7280;font-weight:600;margin-bottom:6px"
+          >SỐ TIỀN ĐẶT CỌC</div>
+          <div
+            style="font-size:18px;font-weight:700;color:#059669"
+          >{{phieu.so_tien_coc}} VND</div>
+        </div>
+      </div>
+      <div style="border-top:1px solid #e5e7eb;padding-top:16px">
+        <div
+          style="font-size:12px;color:#6b7280;font-weight:600;margin-bottom:6px"
+        >KHÁCH HÀNG</div>
+        <div
+          style="font-size:15px;color:#111827;display:flex;align-items:center"
+        >
+          <span style="margin-right:8px">👤</span>
+          {{customerName}}
+        </div>
+      </div>
+    </div>
+
+    <button
+      onclick="window.location.href='/phieu-dat-coc/{{phieu.ma_phieu}}/thanh-toan'"
+      style="background:#1e40af;color:#fff;padding:12px 32px;border-radius:8px;border:none;font-size:15px;font-weight:600;cursor:pointer"
+    >Thanh toán ngay</button>
+  </div>
+</div>

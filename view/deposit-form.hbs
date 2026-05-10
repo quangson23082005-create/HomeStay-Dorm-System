@@ -1,0 +1,166 @@
+<div
+  style="max-width:900px;margin:0 auto;background:#fff;padding:32px;border-radius:8px;border:1px solid #dbeafe"
+>
+  <h2
+    style="text-align:center;color:#1e40af;font-size:22px;margin-bottom:24px;font-weight:700"
+  >PHIẾU ĐẶT CỌC</h2>
+
+  {{#if error}}
+    <div
+      style="background:#fee2e2;color:#b91c1c;padding:12px;border-radius:6px;margin-bottom:16px;font-size:14px"
+    >{{error}}</div>
+  {{/if}}
+
+  <form action="{{formAction}}" method="post">
+    {{! Hidden fields để gửi dữ liệu form }}
+    <input type="hidden" name="ma_phieu" value="{{phieu.ma_phieu}}" />
+    <input type="hidden" name="ngay_lap" value="{{phieu.ngay_lap}}" />
+    <input type="hidden" name="trang_thai" value="{{phieu.trang_thai}}" />
+    <input type="hidden" name="so_tien_coc" value="{{phieu.so_tien_coc}}" />
+    <input type="hidden" name="so_phong" value="{{phieu.so_phong}}" />
+    <input
+      type="hidden"
+      name="ten_khach_hang"
+      value="{{phieu.ten_khach_hang}}"
+    />
+    {{! Mã phiếu + Ngày lập }}
+    <div
+      style="display:flex;gap:32px;margin-bottom:24px;border-bottom:1px solid #e5e7eb;padding-bottom:16px"
+    >
+      <div style="flex:1">
+        <div
+          style="font-size:12px;color:#6b7280;font-weight:600;margin-bottom:4px"
+        >Mã phiếu</div>
+        <div
+          style="font-size:15px;font-weight:600;color:#111827"
+        >{{phieu.ma_phieu}}</div>
+      </div>
+      <div style="flex:1;text-align:right">
+        <div
+          style="font-size:12px;color:#6b7280;font-weight:600;margin-bottom:4px"
+        >Ngày lập</div>
+        <div
+          style="font-size:15px;font-weight:600;color:#111827"
+        >{{phieu.ngay_lap}}</div>
+      </div>
+    </div>
+
+    {{! Thông tin khách hàng }}
+    <div
+      style="background:#fbfdff;border:1px solid #e6eef8;border-radius:8px;padding:16px;margin-bottom:24px"
+    >
+      <div style="display:flex;align-items:center;margin-bottom:12px">
+        <span style="font-size:18px;margin-right:8px">👤</span>
+        <h3 style="font-size:14px;font-weight:700;color:#111827">THÔNG TIN KHÁCH
+          HÀNG</h3>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <div
+            style="font-size:12px;color:#6b7280;font-weight:600;margin-bottom:4px"
+          >Họ và tên</div>
+          <div
+            style="padding:8px;background:#fff;border-radius:4px;border:1px solid #e5e7eb;font-size:13px;color:#111827"
+          >{{phieu.ten_khach_hang}}</div>
+        </div>
+        <div>
+          <div
+            style="font-size:12px;color:#6b7280;font-weight:600;margin-bottom:4px"
+          >Số CCCD</div>
+          <div
+            style="padding:8px;background:#fff;border-radius:4px;border:1px solid #e5e7eb;font-size:13px;color:#111827"
+          >TEST-CCCD-{{phieu.cccd}}</div>
+        </div>
+        <div style="grid-column:1/-1">
+          <div
+            style="font-size:12px;color:#6b7280;font-weight:600;margin-bottom:4px"
+          >Địa chỉ</div>
+          <div
+            style="padding:8px;background:#fff;border-radius:4px;border:1px solid #e5e7eb;font-size:13px;color:#111827"
+          >{{phieu.dia_chi}}</div>
+        </div>
+        <div>
+          <div
+            style="font-size:12px;color:#6b7280;font-weight:600;margin-bottom:4px"
+          >Số điện thoại</div>
+          <div
+            style="padding:8px;background:#fff;border-radius:4px;border:1px solid #e5e7eb;font-size:13px;color:#111827"
+          >{{phieu.sdt}}</div>
+        </div>
+      </div>
+    </div>
+
+    {{! Thông tin phòng }}
+    <div
+      style="background:#fbfdff;border:1px solid #e6eef8;border-radius:8px;padding:16px;margin-bottom:24px"
+    >
+      <div style="display:flex;align-items:center;margin-bottom:12px">
+        <span style="font-size:18px;margin-right:8px">🏠</span>
+        <h3 style="font-size:14px;font-weight:700;color:#111827">THÔNG TIN PHÒNG</h3>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="background:#f3f4f6">
+            <th
+              style="padding:10px;text-align:left;border:1px solid #e5e7eb;font-weight:600;color:#374151"
+            >STT</th>
+            <th
+              style="padding:10px;text-align:left;border:1px solid #e5e7eb;font-weight:600;color:#374151"
+            >PHÒNG</th>
+            <th
+              style="padding:10px;text-align:left;border:1px solid #e5e7eb;font-weight:600;color:#374151"
+            >LOẠI PHÒNG</th>
+            <th
+              style="padding:10px;text-align:center;border:1px solid #e5e7eb;font-weight:600;color:#374151"
+            >SỐ LƯỢNG GIƯỜNG</th>
+            <th
+              style="padding:10px;text-align:right;border:1px solid #e5e7eb;font-weight:600;color:#374151"
+            >ĐƠN GIÁ (VNĐ)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td
+              style="padding:10px;border:1px solid #e5e7eb;color:#111827"
+            >1</td>
+            <td
+              style="padding:10px;border:1px solid #e5e7eb;color:#111827"
+            >{{phieu.so_phong}}</td>
+            <td
+              style="padding:10px;border:1px solid #e5e7eb;color:#111827"
+            >{{phieu.loai_phong}}</td>
+            <td
+              style="padding:10px;border:1px solid #e5e7eb;color:#111827;text-align:center"
+            >{{phieu.so_luong_giuong}}</td>
+            <td
+              style="padding:10px;border:1px solid #e5e7eb;color:#111827;text-align:right"
+            >{{phieu.don_gia}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    {{! Tổng tiền }}
+    <div
+      style="background:#0a3366;color:#fff;padding:20px;border-radius:8px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center"
+    >
+      <div>
+        <div style="font-size:13px;opacity:0.9">TỔNG TIỀN ĐẶT CỌC</div>
+        <div style="font-size:12px;opacity:0.8">(Đơn giá x 2 tháng)</div>
+      </div>
+      <div style="font-size:28px;font-weight:700">{{phieu.so_tien_coc}} đ</div>
+    </div>
+
+    {{! Nút hành động }}
+    <div style="display:flex;justify-content:flex-end;gap:12px">
+      <a
+        href="/"
+        style="padding:10px 16px;border-radius:6px;border:1px solid #e5e7eb;color:#374151;text-decoration:none;font-size:14px;background:#fff"
+      >Hủy</a>
+      <button
+        type="submit"
+        style="background:#1e40af;color:#fff;padding:10px 20px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer"
+      >{{submitLabel}}</button>
+    </div>
+  </form>
+</div>

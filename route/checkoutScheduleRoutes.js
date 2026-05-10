@@ -62,6 +62,10 @@ router.get('/checkout-schedules', (req, res) => {
   res.render('checkout-schedule', buildViewModel());
 });
 
+router.get('/tra-phong', (req, res) => {
+  res.redirect('/checkout-schedules');
+});
+
 router.post('/checkout-schedules/lookup', async (req, res) => {
   const form = {
     ...createDefaultForm(),
