@@ -1,0 +1,82 @@
+<!-- view/register.hbs -->
+<div class="login-wrapper">
+  <div class="login-card" style="max-width:480px;">
+
+    <div class="login-logo">
+      <div class="logo-icon">🏠</div>
+      <div class="logo-text">
+        <span class="logo-main">Homestay</span>
+        <span class="logo-sub">Dorm</span>
+      </div>
+    </div>
+
+    <h1 class="login-title">Tạo tài khoản</h1>
+    <p class="login-desc">Điền thông tin bên dưới để tạo tài khoản mới.</p>
+
+    <form method="POST" action="/register" class="login-form" novalidate>
+
+      <!-- Họ tên -->
+      <div class="form-group">
+        <label>Họ và tên</label>
+        <input type="text" name="ho_ten" value="{{old.ho_ten}}"
+          placeholder="Nguyễn Văn A"
+          class="{{#if errors.ho_ten}}input-error{{/if}}" />
+        {{#if errors.ho_ten}}<span class="field-error">{{errors.ho_ten}}</span>{{/if}}
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" value="{{old.email}}"
+          placeholder="example@email.com"
+          class="{{#if errors.email}}input-error{{/if}}" />
+        {{#if errors.email}}<span class="field-error">{{errors.email}}</span>{{/if}}
+      </div>
+
+      <!-- Role ẩn, mặc định khachhang -->
+      <input type="hidden" name="role" value="khachhang" />
+
+      <!-- Mật khẩu -->
+      <div class="form-group">
+        <label>Mật khẩu</label>
+        <div class="input-password">
+          <input type="password" name="password" id="passwordInput"
+            placeholder="Ít nhất 6 ký tự"
+            class="{{#if errors.password}}input-error{{/if}}" />
+          <button type="button" class="toggle-pw" onclick="togglePw('passwordInput')">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </button>
+        </div>
+        {{#if errors.password}}<span class="field-error">{{errors.password}}</span>{{/if}}
+      </div>
+
+      <!-- Xác nhận mật khẩu -->
+      <div class="form-group">
+        <label>Xác nhận mật khẩu</label>
+        <div class="input-password">
+          <input type="password" name="confirm_password" id="confirmInput"
+            placeholder="Nhập lại mật khẩu"
+            class="{{#if errors.confirm_password}}input-error{{/if}}" />
+          <button type="button" class="toggle-pw" onclick="togglePw('confirmInput')">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </button>
+        </div>
+        {{#if errors.confirm_password}}<span class="field-error">{{errors.confirm_password}}</span>{{/if}}
+      </div>
+
+      <button type="submit" class="btn-login" style="margin-top:8px;">Tạo tài khoản</button>
+    </form>
+
+    <p style="text-align:center; margin-top:20px; font-size:14px; color:#6b7280;">
+      Đã có tài khoản?
+      <a href="/login" style="color:#1a56db; font-weight:600; text-decoration:none;">Đăng nhập</a>
+    </p>
+  </div>
+</div>
+
+<script>
+  function togglePw(id) {
+    const input = document.getElementById(id);
+    input.type = input.type === 'password' ? 'text' : 'password';
+  }
+</script>
