@@ -1,25 +1,26 @@
 import express from "express";
 import { engine } from "express-handlebars";
 import session from "express-session";
+import FileStoreFactory from 'session-file-store';
 import path from "path";
 import { fileURLToPath } from "url";
 import { config } from "./config/env.js";
 import sequelize from "./config/database.js";
 import roomRoutes from "./route/roomRoutes.js";
 import checkoutScheduleRoutes from "./route/checkoutScheduleRoutes.js";
-import { seedCheckoutScheduleReferences } from "./service/bootstrapService.js";
 import lichHenRoutes from "./route/lichHenRoutes.js";
 import authRoutes from "./route/authRoutes.js";
 import depositReceiptRoutes from "./route/depositReceiptRoutes.js";
+import { seedCheckoutScheduleReferences } from "./service/bootstrapService.js";
 import authService from "./service/authService.js";
 import { requireLogin } from "./middleware/auth.js";
 import "./model/roomModel.js";
 import "./model/contractModel.js";
 import "./model/depositReceiptModel.js";
 import "./model/checkoutScheduleModel.js";
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const FileStore = FileStoreFactory(session);
 
 const app = express();
 
@@ -104,17 +105,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // ---- Session ----
-app.use(
-  session({
-    secret: config.sessionSecret || "homestay-secret-key-2024",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 8, // 8 tiếng
-      httpOnly: true,
-    },
+
+app.use(session({
+  secret: config.sessionSecret || 'homestay-secret-key-2024',
+  resave: false,
+  saveUninitialized: false,
+  store: new FileStore({
+    path: path.join(__dirname, '.sessions'),
+    ttl: 1000 * 60 * 60 * 8,
+    retries: 0,
   }),
-);
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 8, // 8 tiếng
+    httpOnly: true,
+  },
+}));
 
 // Gắn user vào res.locals cho tất cả view
 app.use((req, res, next) => {
