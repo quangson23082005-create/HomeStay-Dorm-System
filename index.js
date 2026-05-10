@@ -13,7 +13,7 @@ import authRoutes from "./route/authRoutes.js";
 import depositReceiptRoutes from "./route/depositReceiptRoutes.js";
 import { seedCheckoutScheduleReferences } from "./service/bootstrapService.js";
 import authService from "./service/authService.js";
-import { requireLogin, requireRole } from "./middleware/auth.js";
+import { requireLogin } from "./middleware/auth.js";
 import "./model/roomModel.js";
 import "./model/contractModel.js";
 import "./model/depositReceiptModel.js";
@@ -158,8 +158,7 @@ app.get("/", (req, res) => {
 app.use("/", requireLogin, roomRoutes);
 app.use("/lich-hen", requireLogin, lichHenRoutes);
 app.use("/", roomRoutes);
-// Mount checkout-schedule routes only for sale role
-app.use("/", requireRole('sale'), checkoutScheduleRoutes);
+app.use("/", checkoutScheduleRoutes);
 app.use("/lich-hen", lichHenRoutes);
 app.use("/", requireLogin, depositReceiptRoutes);
 
