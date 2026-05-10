@@ -6,11 +6,16 @@ import { fileURLToPath } from 'url';
 import { config } from './config/env.js';
 import sequelize from './config/database.js';
 import roomRoutes from './route/roomRoutes.js';
+import checkoutScheduleRoutes from './route/checkoutScheduleRoutes.js';
+import { seedCheckoutScheduleReferences } from './service/bootstrapService.js';
 import lichHenRoutes from './route/lichHenRoutes.js';
 import authRoutes from './route/authRoutes.js';
 import authService from './service/authService.js';
 import { requireLogin } from './middleware/auth.js';
 import './model/roomModel.js';
+import './model/contractModel.js';
+import './model/depositReceiptModel.js';
+import './model/checkoutScheduleModel.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -80,10 +85,12 @@ app.use((req, res, next) => {
 // ---- Database ----
 const initializeDatabase = async () => {
   try {
+    console.log('Starting database synchronization...');
     await sequelize.sync({ alter: false });
+    await seedCheckoutScheduleReferences();
     console.log('Database synchronized successfully.');
   } catch (error) {
-    console.error('Error syncing database:', error);
+    console.error('Error syncing database:', error && error.stack ? error.stack : error);
   }
 };
 
@@ -101,6 +108,9 @@ app.get('/', (req, res) => {
 // Các route cần đăng nhập
 app.use('/', requireLogin, roomRoutes);
 app.use('/lich-hen', requireLogin, lichHenRoutes);
+app.use('/', roomRoutes);
+app.use('/', checkoutScheduleRoutes);
+app.use('/lich-hen', lichHenRoutes);
 
 // ---- Error handlers ----
 app.use((err, req, res, next) => {

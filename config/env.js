@@ -10,6 +10,7 @@ export const config = {
     name: process.env.DB_NAME || 'homestay_db',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || '',
+    options: process.env.DB_OPTIONS || '',
   },
   supabase: {
     url: process.env.SUPABASE_URL || '',
