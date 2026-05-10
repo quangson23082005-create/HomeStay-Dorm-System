@@ -109,9 +109,7 @@ app.get('/', (req, res) => {
 // Các route cần đăng nhập
 app.use('/', requireLogin, roomRoutes);
 app.use('/lich-hen', requireLogin, lichHenRoutes);
-app.use('/', roomRoutes);
 app.use('/', checkoutScheduleRoutes);
-app.use('/lich-hen', lichHenRoutes);
 
 // ---- Error handlers ----
 app.use((err, req, res, next) => {
