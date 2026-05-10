@@ -1,28 +1,35 @@
-<div class="row gx-4">
-  <div class="col-lg-8">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-      <div>
-        <h2>{{#ifEquals mode 'create'}}Thêm phòng mới{{else}}Cập nhật phòng{{/ifEquals}}</h2>
-        <p class="text-muted">Vui lòng nhập đầy đủ thông tin phòng để thêm hoặc cập nhật hệ thống quản lý.</p>
-      </div>
-      <a href="/rooms" class="btn btn-outline-secondary">Quay lại danh sách</a>
+<div class="form-container">
+  <div class="form-header">
+    <div>
+      <nav class="breadcrumb">
+        <a href="/quan-ly/rooms">Quản lý</a>
+        <span class="separator">/</span>
+        <span>{{#ifEquals mode 'create'}}Thêm phòng mới{{else}}Cập nhật phòng{{/ifEquals}}</span>
+      </nav>
+      <h1 class="form-title">{{#ifEquals mode 'create'}}Thêm phòng mới{{else}}Cập nhật phòng{{/ifEquals}}</h1>
+      <p class="form-desc">Vui lòng nhập đầy đủ thông tin phòng để {{#ifEquals mode 'create'}}thêm vào{{else}}cập nhật{{/ifEquals}} hệ thống quản lý.</p>
     </div>
+  </div>
 
-    {{#if error}}
-      <div class="alert alert-danger">{{error}}</div>
-    {{/if}}
+  {{#if error}}
+    <div class="alert alert-danger">{{error}}</div>
+  {{/if}}
 
-    <form method="post" action="{{formAction}}">
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">Mã phòng</label>
-          <input type="number" min="1" name="id_phong" class="form-control" value="{{room.id_phong}}" {{#unlessEquals mode 'create'}}disabled{{/unlessEquals}} placeholder="Để trống để tạo tự động (chỉ số nguyên)" />
-          {{#unlessEquals mode 'create'}}<div class="form-text">Mã phòng không thể sửa đổi khi cập nhật.</div>{{/unlessEquals}}
+  <div class="form-content">
+    <div class="form-left">
+      <form method="post" action="{{formAction}}">
+        <div class="form-group">
+          <label class="form-label">Số phòng <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <span class="input-icon">#</span>
+            <input type="text" name="id_phong" class="form-control" placeholder="VD: P402" value="{{room.id_phong}}" {{#unlessEquals mode 'create'}}disabled{{/unlessEquals}} />
+          </div>
+          {{#unlessEquals mode 'create'}}<small class="form-text">Mã phòng không thể sửa đổi khi cập nhật.</small>{{/unlessEquals}}
         </div>
 
-        <div class="col-md-6">
-          <label class="form-label">Loại phòng</label>
-          <select name="loai_phong" class="form-select" required>
+        <div class="form-group">
+          <label class="form-label">Loại phòng <span class="required">*</span></label>
+          <select name="loai_phong" class="form-control" required>
             <option value="">Chọn loại phòng</option>
             {{#each roomOptions}}
               <option value="{{this}}" {{#ifEquals ../room.loai_phong this}}selected{{/ifEquals}}>{{this}}</option>
@@ -30,50 +37,85 @@
           </select>
         </div>
 
-        <div class="col-md-4">
-          <label class="form-label">Tầng</label>
-          <input type="number" min="1" name="tang" class="form-control" value="{{room.tang}}" required />
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tầng <span class="required">*</span></label>
+            <div class="input-with-icon">
+              <span class="input-icon">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M4 3h16v3H4V3zm0 5h16v2H4V8zm0 4h16v2H4v-2zm0 4h16v2H4v-2z"/>
+                </svg>
+              </span>
+              <input type="text" name="tang" class="form-control" placeholder="Sơ tầng" value="{{room.tang}}" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Trạng thái <span class="required">*</span></label>
+            <select name="trang_thai" class="form-control" required>
+              {{#each statusOptions}}
+                <option value="{{value}}" {{#ifEquals ../room.trang_thai value}}selected{{/ifEquals}}>{{label}}</option>
+              {{/each}}
+            </select>
+          </div>
         </div>
 
-        <div class="col-md-4">
-          <label class="form-label">Trạng thái</label>
-          <select name="trang_thai" class="form-select" required>
-            {{#each statusOptions}}
-              <option value="{{value}}" {{#ifEquals ../room.trang_thai value}}selected{{/ifEquals}}>{{label}}</option>
-            {{/each}}
-          </select>
+        <div class="form-group">
+          <label class="form-label">Giá thuê/tháng (VND) <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <span class="input-icon">
+              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13h-1v6h1V7zm0 8h-1v2h1v-2z"/>
+              </svg>
+            </span>
+            <input type="number" min="0" step="1000" name="gia_thue" class="form-control" placeholder="VD: 5,000,000" value="{{room.gia_thue}}" required />
+          </div>
         </div>
 
-        <div class="col-md-4">
-          <label class="form-label">Số lượng giường</label>
+        <div class="form-group">
+          <label class="form-label">Số lượng giường <span class="required">*</span></label>
           <input type="number" min="1" name="so_luong_giuong" class="form-control" value="{{room.so_luong_giuong}}" required />
         </div>
 
-        <div class="col-md-12">
-          <label class="form-label">Giá thuê/tháng (VND)</label>
-          <input type="number" min="0" step="1000" name="gia_thue" class="form-control" value="{{room.gia_thue}}" placeholder="VD: 5000000" required />
+        <div class="form-actions">
+          <a href="/quan-ly/rooms" class="btn-cancel">Hủy</a>
+          <button type="submit" class="btn-submit">{{submitLabel}}</button>
         </div>
+      </form>
+    </div>
 
-        <div class="col-12 d-flex justify-content-end gap-2 mt-3">
-          <a href="/rooms" class="btn btn-secondary">Hủy</a>
-          <button type="submit" class="btn btn-primary">{{submitLabel}}</button>
+    <div class="form-right">
+      <div class="preview-card">
+        <div class="preview-image">
+          <svg viewBox="0 0 280 160" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="20" y="20" width="240" height="120" rx="8"/>
+            <line x1="130" y1="20" x2="130" y2="140"/>
+            <line x1="20" y1="80" x2="260" y2="80"/>
+            <circle cx="100" cy="50" r="8" fill="currentColor"/>
+            <circle cx="160" cy="50" r="8" fill="currentColor"/>
+            <circle cx="100" cy="110" r="8" fill="currentColor"/>
+            <circle cx="160" cy="110" r="8" fill="currentColor"/>
+          </svg>
         </div>
-      </div>
-    </form>
-  </div>
-  <div class="col-lg-4">
-    <div class="card shadow-sm border-0 room-preview-card">
-      <div class="card-body">
-        <h5 class="card-title">Xem trước</h5>
-        <p class="text-muted">Thông tin phòng mới sẽ được lưu vào hệ thống quản lý khi bạn nhấn nút.</p>
-        <ul class="list-group list-group-flush mt-3">
-          <li class="list-group-item"><strong>Mã phòng:</strong> {{room.id_phong}}</li>
-          <li class="list-group-item"><strong>Loại phòng:</strong> {{room.loai_phong}}</li>
-          <li class="list-group-item"><strong>Tầng:</strong> {{room.tang}}</li>
-          <li class="list-group-item"><strong>Trạng thái:</strong> {{room.trang_thai}}</li>
-          <li class="list-group-item"><strong>Số lượng giường:</strong> {{room.so_luong_giuong}}</li>
-          <li class="list-group-item"><strong>Giá thuê/tháng:</strong> {{room.gia_thue}}</li>
-        </ul>
+        <div class="preview-info">
+          <div class="info-item">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8zm0 18c-3.35 0-6-2.57-6-6.1 0-2.2 1.3-4.75 6-8.9 4.7 4.15 6 6.7 6 8.9 0 3.53-2.65 6.1-6 6.1z"/>
+            </svg>
+            <div>
+              <strong>Lưu ý nhập liệu</strong>
+              <p>Đảm bảo số phòng chưa tồn tại trên cùng một tòa.</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <div>
+              <strong>Tính trạng hợp lệ</strong>
+              <p>Thông tin sẽ được cập nhật ngay lập tức.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

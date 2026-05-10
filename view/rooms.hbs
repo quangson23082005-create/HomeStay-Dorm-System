@@ -1,118 +1,134 @@
-<div class="mb-4">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <div>
-      <h2>Quản lý danh mục phòng</h2>
-      <p class="text-muted">Theo dõi, chỉnh sửa và quản lý danh sách phòng trong hệ thống.</p>
+<div class="rooms-container">
+  <div class="rooms-sidebar">
+    <div class="sidebar-header">
+      <h1 class="sidebar-title">Quản lý danh mục phòng</h1>
+      <p class="sidebar-desc">Theo dõi, chỉnh sửa và quản lý tất cả các dữ liệu và bất động sản trong hệ thống.</p>
     </div>
-    <a href="/rooms/new" class="btn btn-primary">Thêm phòng mới</a>
+
+    <div class="stats-group">
+      <div class="stat-item">
+        <small class="stat-label">TỔNG SỐ PHÒNG</small>
+        <h2 class="stat-value">{{stats.total}}</h2>
+        <small class="stat-pct">+12%</small>
+      </div>
+      <div class="stat-item">
+        <small class="stat-label">ĐANG TRỐNG</small>
+        <h2 class="stat-value">{{stats.available}}</h2>
+        <small class="stat-pct">16.5%</small>
+      </div>
+    </div>
+
+    <div class="stat-item full-width">
+      <small class="stat-label">HIỆU SUẤT CHO THUÊ</small>
+      <h2 class="stat-value">{{stats.occupancyRate}}%</h2>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{stats.occupancyRate}}%"></div>
+      </div>
+    </div>
+
+    {{#if error}}
+      <div class="alert alert-danger">{{error}}</div>
+    {{/if}}
   </div>
 
-  {{#if error}}
-    <div class="alert alert-danger">{{error}}</div>
-  {{/if}}
-
-  <div class="row g-3 mb-4">
-    <div class="col-md-4">
-      <div class="card shadow-sm border-0 room-stats-card">
-        <div class="card-body">
-          <small class="text-muted">Tổng số phòng</small>
-          <h3>{{stats.total}}</h3>
-          <span class="text-success">{{stats.available}} phòng trống</span>
-        </div>
+  <div class="rooms-main">
+    <div class="rooms-top">
+      <div class="search-input">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input type="text" placeholder="Tìm kiếm theo số phòng, tòa nhà..." id="searchInput" />
       </div>
+      <a href="/quan-ly/rooms/new" class="btn-add-room">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 5v14m7-7H5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Thêm phòng mới
+      </a>
     </div>
-    <div class="col-md-4">
-      <div class="card shadow-sm border-0 room-stats-card">
-        <div class="card-body">
-          <small class="text-muted">Hiệu suất cho thuê</small>
-          <h3>{{stats.occupancyRate}}%</h3>
-          <span class="text-info">Tương ứng {{stats.total}} phòng</span>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card shadow-sm border-0 room-stats-card">
-        <div class="card-body">
-          <small class="text-muted">Phòng còn lại</small>
-          <h3>{{stats.available}}</h3>
-          <span class="text-secondary">Đang sẵn sàng cho thuê</span>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <form class="row g-3 align-items-end mb-4" method="get" action="/rooms">
-    <div class="col-md-4">
-      <label class="form-label">Tìm kiếm</label>
-      <input type="text" name="search" class="form-control" placeholder="Tìm theo mã, loại, trạng thái..." value="{{filters.search}}">
-    </div>
-    <div class="col-md-2">
-      <label class="form-label">Loại phòng</label>
-      <select name="loai_phong" class="form-select">
-        <option value="all">Tất cả loại phòng</option>
-        {{#each roomOptions}}
-          <option value="{{this}}" {{#ifEquals ../filters.loai_phong this}}selected{{/ifEquals}}>{{this}}</option>
-        {{/each}}
-      </select>
-    </div>
-    <div class="col-md-2">
-      <label class="form-label">Trạng thái</label>
-      <select name="trang_thai" class="form-select">
-        <option value="all">Tất cả trạng thái</option>
-        {{#each statusOptions}}
-          <option value="{{value}}" {{#ifEquals ../filters.trang_thai value}}selected{{/ifEquals}}>{{label}}</option>
-        {{/each}}
-      </select>
-    </div>
-    <div class="col-md-2">
-      <label class="form-label">Tầng</label>
-      <select name="tang" class="form-select">
-        <option value="all">Tất cả tầng</option>
-        {{#each floors}}
-          <option value="{{this}}" {{#ifEquals ../filters.tang this}}selected{{/ifEquals}}>Tầng {{this}}</option>
-        {{/each}}
-      </select>
-    </div>
-    <div class="col-md-2 d-grid">
-      <button type="submit" class="btn btn-outline-primary">Lọc</button>
-    </div>
-  </form>
-
-  <div class="table-responsive shadow-sm rounded">
-    <table class="table table-hover align-middle mb-0">
-      <thead class="table-light">
-        <tr>
-          <th scope="col">Mã phòng</th>
-          <th scope="col">Loại phòng</th>
-          <th scope="col">Tầng</th>
-          <th scope="col">Trạng thái</th>
-          <th scope="col">Giá thuê/tháng</th>
-          <th scope="col" class="text-end">Thao tác</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#if rooms.length}}
-          {{#each rooms}}
-          <tr>
-            <td>{{id_phong}}</td>
-            <td>{{loai_phong}}</td>
-            <td>{{tang}}</td>
-            <td><span class="badge bg-{{badge_class}}">{{status_label}}</span></td>
-            <td>{{formatted_gia_thue}}</td>
-            <td class="text-end table-actions">
-              <a href="/rooms/{{id_phong}}/edit" class="btn btn-sm btn-outline-primary">Sửa</a>
-              <form method="post" action="/rooms/{{id_phong}}/delete" class="d-inline" onsubmit="return confirm('Xác nhận xoá phòng này?');">
-                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
-              </form>
-            </td>
-          </tr>
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>Loại phòng</label>
+        <select name="loai_phong" id="filterLoai" onchange="applyFilters()">
+          <option value="all">Tất cả loại phòng</option>
+          {{#each roomOptions}}
+            <option value="{{this}}">{{this}}</option>
           {{/each}}
-        {{else}}
-          <tr>
-            <td colspan="6" class="text-center text-muted">Không có phòng nào trong hệ thống.</td>
-          </tr>
-        {{/if}}
-      </tbody>
-    </table>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Trạng thái</label>
+        <select name="trang_thai" id="filterTrang" onchange="applyFilters()">
+          <option value="all">Tất cả trạng thái</option>
+          {{#each statusOptions}}
+            <option value="{{value}}">{{label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Tầng</label>
+        <select name="tang" id="filterTang" onchange="applyFilters()">
+          <option value="all">Tất cả tầng</option>
+          {{#each floors}}
+            <option value="{{this}}">Tầng {{this}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <button class="btn-filter" onclick="applyFilters()">Xóa lọc</button>
+    </div>
+
+    <div class="rooms-table">
+      <div class="table-header">
+        <div class="col-id">Số phòng</div>
+        <div class="col-type">Loại phòng</div>
+        <div class="col-floor">Tầng</div>
+        <div class="col-status">Trạng thái</div>
+        <div class="col-price">Giá thuê/tháng</div>
+        <div class="col-action">Thao tác</div>
+      </div>
+
+      {{#if rooms.length}}
+        {{#each rooms}}
+        <div class="table-row">
+          <div class="col-id">{{id_phong}}</div>
+          <div class="col-type">{{loai_phong}}</div>
+          <div class="col-floor">{{tang}}</div>
+          <div class="col-status">
+            <span class="status-badge status-{{badge_class}}">{{status_label}}</span>
+          </div>
+          <div class="col-price">{{formatted_gia_thue}}</div>
+          <div class="col-action">
+            <a href="/quan-ly/rooms/{{id_phong}}/edit" class="btn-edit">
+              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M3 17.25V21h3.75L17.81 9.94m-2.83-2.83l2.83-2.83m0 0l2.83 2.83M9.11 9.11l2.83-2.83"/>
+              </svg>
+            </a>
+            <form method="post" action="/quan-ly/rooms/{{id_phong}}/delete" class="form-inline" onsubmit="return confirm('Xác nhận xóa phòng này?');">
+              <button type="submit" class="btn-delete">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+              </button>
+            </form>
+          </div>
+        </div>
+        {{/each}}
+      {{else}}
+        <div class="table-empty">Không có phòng nào trong hệ thống.</div>
+      {{/if}}
+    </div>
+
+    <div class="pagination">
+      <span class="page-info">Hiển thị 1 - 4 của 124 phòng</span>
+      <div class="page-buttons">
+        <button class="page-btn">Trước</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">Sau</button>
+      </div>
+    </div>
   </div>
 </div>
