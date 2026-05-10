@@ -1,6 +1,7 @@
 import express from 'express';
 import { engine } from 'express-handlebars';
 import session from 'express-session';
+import FileStoreFactory from 'session-file-store';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { config } from './config/env.js';
@@ -19,6 +20,7 @@ import './model/checkoutScheduleModel.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const FileStore = FileStoreFactory(session);
 
 const app = express();
 
@@ -70,6 +72,11 @@ app.use(session({
   secret: config.sessionSecret || 'homestay-secret-key-2024',
   resave: false,
   saveUninitialized: false,
+  store: new FileStore({
+    path: path.join(__dirname, '.sessions'),
+    ttl: 1000 * 60 * 60 * 8,
+    retries: 0,
+  }),
   cookie: {
     maxAge: 1000 * 60 * 60 * 8, // 8 tiếng
     httpOnly: true,
