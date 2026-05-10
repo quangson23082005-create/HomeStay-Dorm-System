@@ -1,0 +1,796 @@
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: #f5f7fa;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 24px;
+  }
+
+  /* ─── Thông tin khách hàng ─── */
+  .customer-info-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  .customer-info-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .customer-info-header .icon {
+    font-size: 24px;
+  }
+
+  .customer-info-header .title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+
+  .customer-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .info-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9ca3af;
+    margin-bottom: 4px;
+  }
+
+  .info-value {
+    font-size: 14px;
+    color: #1a1a2e;
+    font-weight: 500;
+  }
+
+  .confirm-btn {
+    width: 100%;
+    padding: 12px;
+    background: #1435b8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .confirm-btn:hover {
+    background: #1030a8;
+  }
+
+  .room-info-box {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .room-info-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+  }
+
+  .room-info-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .room-info-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9ca3af;
+    margin-bottom: 4px;
+  }
+
+  .room-info-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1435b8;
+  }
+
+  /* ─── Danh sách phòng ─── */
+  .rooms-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+    position: relative;
+    transition: color 0.2s;
+  }
+
+  .tab.active {
+    color: #1435b8;
+  }
+
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #1435b8;
+  }
+
+  .search-box {
+    margin-bottom: 20px;
+  }
+
+  .search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus {
+    border-color: #1435b8;
+  }
+
+  .search-input::placeholder {
+    color: #d1d5db;
+  }
+
+  /* ─── Rooms Grid ─── */
+  .rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .room-card {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    text-align: center;
+  }
+
+  .room-card:hover {
+    border-color: #1435b8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .room-card.selected {
+    border-color: #1435b8;
+    background: #eff6ff;
+  }
+
+  .room-card.selected::before {
+    content: '✓';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #1435b8;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+
+  .room-code {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+  }
+
+  .room-floor {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-bottom: 12px;
+  }
+
+  .room-type {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 12px;
+    min-height: 26px;
+  }
+
+  /* ─── Beds Grid (Thuê theo giường) ─── */
+  .beds-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .bed-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    background: white;
+  }
+
+  .bed-item:hover {
+    border-color: #1435b8;
+    color: #1435b8;
+  }
+
+  .bed-item.unavailable {
+    background: #fee;
+    color: #dc2626;
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .bed-item.selected {
+    border-color: #1435b8;
+    background: #dbeafe;
+    color: #1435b8;
+  }
+
+  .bed-icon {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .bed-number {
+    font-size: 12px;
+  }
+
+  /* ─── Agreement & Buttons ─── */
+  .agreement-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+  }
+
+  .agreement-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #1435b8;
+  }
+
+  .agreement-text {
+    font-size: 14px;
+    color: #6b7280;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-cancel {
+    background: #ef4444;
+    color: white;
+  }
+
+  .btn-cancel:hover {
+    background: #dc2626;
+  }
+
+  .btn-confirm {
+    background: #d1d5db;
+    color: #6b7280;
+  }
+
+  .btn-confirm:hover:not(:disabled) {
+    background: #9ca3af;
+  }
+
+  .btn-confirm:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    .customer-info-section {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .customer-info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .rooms-grid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .action-buttons {
+      flex-direction: column-reverse;
+    }
+
+    .btn {
+      width: 100%;
+    }
+  }
+
+  /* ─── Toast notifications ─── */
+  .toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+  }
+
+  .toast {
+    background: white;
+    border-left: 4px solid #1435b8;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    animation: slideIn 0.3s ease;
+  }
+
+  .toast.success {
+    border-left-color: #10b981;
+  }
+
+  .toast.error {
+    border-left-color: #ef4444;
+  }
+
+  @keyframes slideIn {
+    from { transform: translateX(400px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  .hidden {
+    display: none;
+  }
+</style>
+
+<div class="container">
+  <h1 class="page-title">Xác nhận thuê phòng</h1>
+
+  <!-- Thông tin khách hàng -->
+  <div class="customer-info-section">
+    <div>
+      <div class="customer-info-header">
+        <span class="icon">👤</span>
+        <span class="title">Thông tin khách hàng</span>
+      </div>
+
+      <div class="customer-info-grid">
+        {{#if khachHang}}
+          <div class="info-item">
+            <span class="info-label">Họ và Tên</span>
+            <span class="info-value">{{khachHang.ho_va_ten}}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Ngày Sinh</span>
+            <span class="info-value">{{khachHang.ngay_sinh}}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Địa Chỉ</span>
+            <span class="info-value">{{khachHang.dia_chi}}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Số Điện Thoại</span>
+            <span class="info-value">{{khachHang.sdt}}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Email</span>
+            <span class="info-value">xxxxxxx</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">CCCD</span>
+            <span class="info-value">{{khachHang.cccd}}</span>
+          </div>
+        {{else}}
+          <p style="color: #ef4444;">Không tìm thấy thông tin khách hàng</p>
+        {{/if}}
+      </div>
+    </div>
+
+    <!-- Thông tin hộ số -->
+    <div class="room-info-box">
+      <div class="customer-info-header" style="margin-bottom: 16px;">
+        <span class="icon">📋</span>
+        <span class="title">Thông tin hộ số</span>
+      </div>
+
+      {{#if id_phieu}}
+        <div class="room-info-item">
+          <span class="room-info-label">Mã Phiếu Đăng Kỳ</span>
+          <span class="room-info-value">{{id_phieu}}</span>
+        </div>
+        <div class="room-info-item">
+          <span class="room-info-label">Số Lượng</span>
+          <span class="room-info-value">{{daDangKy.length}}</span>
+        </div>
+      {{else}}
+        <p style="color: #9ca3af;">Chọn phiếu để xem thông tin</p>
+      {{/if}}
+    </div>
+  </div>
+
+  <!-- Danh sách phòng -->
+  <div class="rooms-section">
+    <div class="section-header">
+      <div class="section-title">
+        <span>📋</span>
+        <span>Danh sách phòng đã đăng ký</span>
+      </div>
+    </div>
+
+    <!-- Phiếu tabs -->
+    <div style="margin-bottom: 20px;">
+      {{#if danhSachPhieu}}
+        <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
+          {{#each danhSachPhieu}}
+            <button 
+              class="tab {{#if (eq id_phieu ../id_phieu)}}active{{/if}}"
+              onclick="changePhieu({{id_phieu}}, '{{loai_thue}}')">
+              Phiếu {{id_phieu}}
+            </button>
+          {{/each}}
+        </div>
+      {{/if}}
+    </div>
+
+    <!-- Tabs: Thuê theo giường / Thuê nguyên căn -->
+    <div class="tabs">
+      <button 
+        class="tab {{#if (eq loai_thue 'ghep')}}active{{/if}}"
+        onclick="changeTab('ghep')">
+        Thuê theo giường
+      </button>
+      <button 
+        class="tab {{#unless (eq loai_thue 'ghep')}}active{{/unless}}"
+        onclick="changeTab('nguyen_can')">
+        Thuê nguyên căn
+      </button>
+    </div>
+
+    <!-- Search -->
+    <div class="search-box" style="display: flex; gap: 12px; align-items: flex-end;">
+      <div style="flex: 1; max-width: 400px;">
+        <input 
+          type="text" 
+          class="search-input" 
+          id="searchInput" 
+          placeholder="Tìm số phòng..."
+          onkeyup="filterRooms()"
+          style="width: 100%;">
+      </div>
+      <button class="btn btn-primary" onclick="filterRooms()" style="padding: 10px 16px; font-size: 13px;">
+        🔍 Tìm kiếm
+      </button>
+    </div>
+
+    <!-- Rooms Grid -->
+    <div class="rooms-grid" id="roomsGrid">
+      {{#if daDangKy}}
+        {{#if (eq loai_thue 'ghep')}}
+          <!-- Thuê theo giường: Nhóm theo phòng -->
+          {{#each daDangKy}}
+            {{#if (eq @index 0)}}
+              <!-- Tạo card mới cho phòng đầu tiên -->
+              <div class="room-card" data-room-id="{{id_phong}}" data-room-code="P{{id_phong}}">
+                <div class="room-code">P{{id_phong}}</div>
+                <div class="room-floor">Tầng {{tang}}</div>
+                <div class="room-type">Phòng {{loai_phong}} {{so_luong_giuong}} giường</div>
+                <div class="beds-grid">
+            {{else if (ne id_phong @first.id_phong)}}
+              <!-- Kết thúc card trước, tạo card mới -->
+                </div>
+              </div>
+              <div class="room-card" data-room-id="{{id_phong}}" data-room-code="P{{id_phong}}">
+                <div class="room-code">P{{id_phong}}</div>
+                <div class="room-floor">Tầng {{tang}}</div>
+                <div class="room-type">Phòng {{loai_phong}} {{so_luong_giuong}} giường</div>
+                <div class="beds-grid">
+            {{/if}}
+            
+            <!-- Thêm giường -->
+            <div 
+              class="bed-item {{#if duoc_chon}}selected{{/if}} {{#if (eq tinh_trang 'da_thue')}}unavailable{{/if}}"
+              data-bed-id="{{id_giuong}}"
+              onclick="toggleBed(event, {{id_phong}}, {{id_giuong}})"
+              {{#if (eq tinh_trang 'da_thue')}}disabled{{/if}}>
+              <div class="bed-icon">👤</div>
+              <div class="bed-number">{{id_giuong}}</div>
+            </div>
+            
+            {{#if @last}}
+              <!-- Kết thúc card cuối cùng -->
+                </div>
+              </div>
+            {{/if}}
+          {{/each}}
+        {{else}}
+          <!-- Thuê nguyên căn: Mỗi phòng là 1 card -->
+          {{#each daDangKy}}
+            <div 
+              class="room-card {{#if duoc_chon}}selected{{/if}}"
+              data-room-id="{{id_phong}}"
+              data-room-code="P{{id_phong}}"
+              onclick="toggleRoom(event, {{id_phong}})">
+              <div class="room-code">P{{id_phong}}</div>
+              <div class="room-floor">Tầng {{tang}}</div>
+              <div class="room-type">Phòng {{loai_phong}} {{so_luong_giuong}} giường</div>
+            </div>
+          {{/each}}
+        {{/if}}
+      {{else}}
+        <p style="color: #9ca3af; grid-column: 1/-1; text-align: center; padding: 40px;">
+          Không có phòng/giường nào
+        </p>
+      {{/if}}
+    </div>
+
+    <!-- Thỏa thuận -->
+    <div class="agreement-section">
+      <input type="checkbox" class="agreement-checkbox" id="agreeCheckbox">
+      <span class="agreement-text">Đồng ý tuân thủ các điều kiện và nội quy</span>
+    </div>
+
+    <!-- Buttons -->
+    <div class="action-buttons">
+      <form method="POST" action="/xac-nhan-thue-phong/huy" style="flex: 1; max-width: 150px;">
+        <button type="submit" class="btn btn-cancel">✕ Hủy</button>
+      </form>
+      <form id="confirmForm" method="POST" action="/xac-nhan-thue-phong/xac-nhan-chon-phong" style="flex: 1; max-width: 150px;">
+        <input type="hidden" name="id_phieu" id="hiddenPhieu" value="{{id_phieu}}">
+        <input type="hidden" name="loai_thue" id="hiddenLoaiThue" value="{{loai_thue}}">
+        <input type="hidden" name="danh_sach_chon" id="hiddenDanhSachChon" value="[]">
+        <button type="submit" class="btn btn-confirm" id="confirmBtn" disabled>✓ Xác nhận</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="toast-container"></div>
+
+<script>
+  let selectedBeds = new Set();
+  let selectedRooms = new Set();
+  const loaiThue = '{{loai_thue}}';
+
+  // Khởi tạo selected items từ data
+  {{#if daDangKy}}
+    {{#each daDangKy}}
+      {{#if duoc_chon}}
+        {{#if (eq ../loai_thue 'ghep')}}
+          selectedBeds.add('{{id_phong}}-{{id_giuong}}');
+        {{else}}
+          selectedRooms.add({{id_phong}});
+        {{/if}}
+      {{/if}}
+    {{/each}}
+  {{/if}}
+
+  // Toggle bed (thuê theo giường)
+  function toggleBed(event, idPhong, idGiuong) {
+    if (event.target.closest('.bed-item').classList.contains('unavailable')) {
+      return;
+    }
+
+    const key = `${idPhong}-${idGiuong}`;
+    const bedElement = event.currentTarget;
+
+    if (selectedBeds.has(key)) {
+      selectedBeds.delete(key);
+      bedElement.classList.remove('selected');
+    } else {
+      selectedBeds.add(key);
+      bedElement.classList.add('selected');
+    }
+
+    updateConfirmButton();
+  }
+
+  // Toggle room (thuê nguyên căn)
+  function toggleRoom(event, idPhong) {
+    const roomElement = event.currentTarget;
+
+    if (selectedRooms.has(idPhong)) {
+      selectedRooms.delete(idPhong);
+      roomElement.classList.remove('selected');
+    } else {
+      selectedRooms.add(idPhong);
+      roomElement.classList.add('selected');
+    }
+
+    updateConfirmButton();
+  }
+
+  // Cập nhật nút xác nhận
+  function updateConfirmButton() {
+    const hasSelection = loaiThue === 'ghep' ? selectedBeds.size > 0 : selectedRooms.size > 0;
+    const isAgreed = document.getElementById('agreeCheckbox').checked;
+
+    document.getElementById('confirmBtn').disabled = !hasSelection || !isAgreed;
+
+    // Cập nhật hidden input
+    if (loaiThue === 'ghep') {
+      const list = Array.from(selectedBeds).map(key => {
+        const [idPhong, idGiuong] = key.split('-');
+        return { id_phong: parseInt(idPhong), id_giuong: parseInt(idGiuong) };
+      });
+      document.getElementById('hiddenDanhSachChon').value = JSON.stringify(list);
+    } else {
+      const list = Array.from(selectedRooms).map(id => ({
+        id_phong: parseInt(id)
+      }));
+      document.getElementById('hiddenDanhSachChon').value = JSON.stringify(list);
+    }
+  }
+
+  // Lắng nghe checkbox thỏa thuận
+  document.getElementById('agreeCheckbox').addEventListener('change', updateConfirmButton);
+
+  // Tìm kiếm phòng
+  function filterRooms() {
+    const searchValue = document.getElementById('searchInput').value.toLowerCase();
+    const roomCards = document.querySelectorAll('.room-card');
+
+    roomCards.forEach(card => {
+      const roomCode = card.dataset.roomCode.toLowerCase();
+      card.style.display = roomCode.includes(searchValue) ? '' : 'none';
+    });
+  }
+
+  // Chuyển tab (ghep / nguyen_can)
+  function changeTab(loaiThue) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/xac-nhan-thue-phong/load-phong';
+
+    form.innerHTML = `
+      <input type="hidden" name="id_phieu" value="{{id_phieu}}">
+      <input type="hidden" name="loai_thue" value="${loaiThue}">
+    `;
+
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  // Chuyển phiếu
+  function changePhieu(idPhieu, loaiThue) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/xac-nhan-thue-phong/load-phong';
+
+    form.innerHTML = `
+      <input type="hidden" name="id_phieu" value="${idPhieu}">
+      <input type="hidden" name="loai_thue" value="${loaiThue}">
+    `;
+
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  // Hàm hiển thị toast
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  // Khởi tạo trạng thái nút
+  updateConfirmButton();
+</script>

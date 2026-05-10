@@ -1,23 +1,36 @@
-import express from "express";
-import { engine } from "express-handlebars";
-import session from "express-session";
-import FileStoreFactory from 'session-file-store';
-import path from "path";
-import { fileURLToPath } from "url";
-import { config } from "./config/env.js";
-import sequelize from "./config/database.js";
-import roomRoutes from "./route/roomRoutes.js";
-import checkoutScheduleRoutes from "./route/checkoutScheduleRoutes.js";
-import lichHenRoutes from "./route/lichHenRoutes.js";
-import authRoutes from "./route/authRoutes.js";
-import depositReceiptRoutes from "./route/depositReceiptRoutes.js";
-import { seedCheckoutScheduleReferences } from "./service/bootstrapService.js";
-import authService from "./service/authService.js";
-import { requireLogin } from "./middleware/auth.js";
-import "./model/roomModel.js";
-import "./model/contractModel.js";
-import "./model/depositReceiptModel.js";
-import "./model/checkoutScheduleModel.js";
+import express from 'express';
+import { engine } from 'express-handlebars';
+import session from 'express-session';
+import FileStoreFactory from 'session-file-store'; // Giữ từ main
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Cấu hình & Database
+import { config } from './config/env.js';
+import sequelize from './config/database.js';
+
+// Routes
+import roomRoutes from './route/roomRoutes.js';
+import checkoutScheduleRoutes from './route/checkoutScheduleRoutes.js';
+import lichHenRoutes from './route/lichHenRoutes.js';
+import authRoutes from './route/authRoutes.js';
+import xacNhanThuePhongRoutes from './route/xacNhanThuePhongRoutes.js'; // Giữ từ son
+import depositReceiptRoutes from "./route/depositReceiptRoutes.js"; // Giữ từ main
+
+// Services & Middleware
+import { seedCheckoutScheduleReferences } from './service/bootstrapService.js';
+import authService from './service/authService.js';
+import { requireLogin } from './middleware/auth.js';
+
+// Models (Hợp nhất tất cả các model từ cả 2 nhánh)
+import './model/roomModel.js';
+import './model/contractModel.js';
+import './model/depositReceiptModel.js';
+import './model/checkoutScheduleModel.js';
+import './model/khachHangModel.js';
+import './model/phieuDangKyModel.js';
+import './model/phieuDangKyGhepModel.js';
+import './model/phieuDangKyNguyenCanModel.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const FileStore = FileStoreFactory(session);
@@ -155,12 +168,14 @@ app.get("/", (req, res) => {
 });
 
 // Các route cần đăng nhập
-app.use("/", requireLogin, roomRoutes);
-app.use("/lich-hen", requireLogin, lichHenRoutes);
-app.use("/", roomRoutes);
-app.use("/", checkoutScheduleRoutes);
-app.use("/lich-hen", lichHenRoutes);
-app.use("/", requireLogin, depositReceiptRoutes);
+// Các route yêu cầu đăng nhập (Bảo mật)
+app.use('/', requireLogin, roomRoutes);
+app.use('/lich-hen', requireLogin, lichHenRoutes);
+app.use('/', requireLogin, xacNhanThuePhongRoutes); // Giữ từ nhánh son
+app.use('/', requireLogin, depositReceiptRoutes);   // Giữ từ nhánh main
+
+// Route lịch trả phòng (Tùy bạn quyết định có cần login hay không, ở đây mình để login cho an toàn)
+app.use('/', requireLogin, checkoutScheduleRoutes);
 
 // ---- Error handlers ----
 app.use((err, req, res, next) => {
