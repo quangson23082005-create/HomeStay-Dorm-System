@@ -6,7 +6,7 @@ import sequelize from "../config/database.js";
 
 const router = express.Router();
 
-router.get("/phieu-dat-coc/new", requireLogin, async (req, res) => {
+router.get("/phieu-dat-coc/new", requireRole("khachhang"), async (req, res) => {
   console.log("=== GET /phieu-dat-coc/new HANDLER CALLED ===");
   try {
     const ma_phieu = await depositService.phatSinh();
@@ -57,7 +57,7 @@ router.get("/phieu-dat-coc/new", requireLogin, async (req, res) => {
 
 router.post(
   "/phieu-dat-coc/new",
-  requireLogin,
+  requireRole("khachhang"),
   async (req, res) => {
     try {
       // Lấy khách hàng id=1 từ database
