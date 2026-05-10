@@ -29,7 +29,7 @@ router.get("/phieu-dat-coc/new", requireRole("khachhang"), async (req, res) => {
       phieu: {
         ma_phieu,
         ngay_lap: new Date().toISOString().split("T")[0],
-        trang_thai: "moi_tao",
+        trang_thai: "Chưa thanh toán",
         ten_khach_hang: khach.ho_va_ten,
         cccd: khach.cccd,
         dia_chi: khach.dia_chi,
@@ -72,13 +72,15 @@ router.post(
       }
 
       const khach = khachRows && khachRows.length > 0 ? khachRows[0] : {};
+      const tenKhachHang = khach.ho_va_ten || "Nguyen Chi";
 
       const payload = {
         ma_phieu: req.body.ma_phieu,
         thoi_gian: req.body.ngay_lap,
         so_tien_coc: req.body.so_tien_coc,
-        trang_thai: req.body.trang_thai || "moi_tao",
-        ten_khach_hang: khach.ho_va_ten || "",
+        trang_thai: req.body.trang_thai || "Chưa thanh toán",
+        id_khach_hang: khach.id_khach_hang || null,
+        ten_khach_hang: tenKhachHang,
         so_phong: req.body.so_phong,
       };
 
@@ -102,9 +104,19 @@ router.get("/phieu-dat-coc/:ma", async (req, res) => {
     const phieu = await depositService.layTT(ma);
     if (!phieu)
       return res.status(404).render("404", { title: "Không tìm thấy" });
+
+    const customerName =
+      String(phieu.ten_khach_hang || "").trim() || "Nguyen Chi";
+
+    const phieuView = {
+      ...phieu,
+      ten_khach_hang: customerName,
+    };
+
     res.render("deposit-detail", {
       title: "Phiếu đặt cọc",
-      phieu,
+      phieu: phieuView,
+      customerName,
     });
   } catch (error) {
     res.status(500).render("error", { title: "Lỗi", error });

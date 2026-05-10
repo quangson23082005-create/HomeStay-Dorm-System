@@ -9,7 +9,8 @@ export const taoPhieu = async (phieuDatCoc) => {
     ma_phieu: phieuDatCoc.ma_phieu?.trim(),
     thoi_gian: phieuDatCoc.thoi_gian || phieuDatCoc.ngay_lap,
     so_tien_coc: phieuDatCoc.so_tien_coc || phieuDatCoc.so_tien || null,
-    trang_thai: phieuDatCoc.trang_thai || "moi_tao",
+    trang_thai: phieuDatCoc.trang_thai || "Chưa thanh toán",
+    id_khach_hang: phieuDatCoc.id_khach_hang || null,
     // additional fields for memory-mode or later use
     ten_khach_hang: phieuDatCoc.ten_khach_hang?.trim(),
     so_phong: phieuDatCoc.so_phong?.trim(),
