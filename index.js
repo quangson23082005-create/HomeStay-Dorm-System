@@ -69,6 +69,7 @@ app.engine(
           : options.inverse(this);
       },
       eq: (a, b) => a === b,
+      ne: (a, b) => a !== b,
       initials: (name = "") =>
         name
           .split(" ")

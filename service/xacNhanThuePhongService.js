@@ -9,6 +9,14 @@ const LOAI_THUE = {
   NGUYEN_CAN: 'nguyen_can',
 };
 
+// ── Normalize loai_thue từ DB (single_bed/full_house) thành (ghep/nguyen_can) ──
+const normalizeLoaiThue = (loai_thue) => {
+  if (loai_thue === 'single_bed') return LOAI_THUE.GHEP;
+  if (loai_thue === 'full_house') return LOAI_THUE.NGUYEN_CAN;
+  // Nếu đã normalized, trả về như là
+  return loai_thue;
+};
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const validateKhachHang = (khachHang, id) => {
@@ -24,9 +32,12 @@ const validatePhieuThuocKhach = (phieu, id_khach_hang) => {
 };
 
 const validateLoaiThue = (loai_thue, phieu_loai_thue) => {
-  if (loai_thue !== phieu_loai_thue) {
+  const normalizedLoaiThue = normalizeLoaiThue(loai_thue);
+  const normalizedPhieuLoaiThue = normalizeLoaiThue(phieu_loai_thue);
+  
+  if (normalizedLoaiThue !== normalizedPhieuLoaiThue) {
     throw new Error(
-      `Loại thuê không khớp: phiếu là "${phieu_loai_thue}", yêu cầu "${loai_thue}".`
+      `Loại thuê không khớp: phiếu là "${normalizedPhieuLoaiThue}", yêu cầu "${normalizedLoaiThue}".`
     );
   }
 };
@@ -44,6 +55,9 @@ const validateMotLuaChon = (danhSach) => {
 };
 
 // ── Exported service functions ────────────────────────────────────────────────
+
+// Export normalizeLoaiThue để route có thể sử dụng
+export { normalizeLoaiThue };
 
 // <<static>> LayThongTinKhachHang()
 // Trả về thông tin khách hàng + tất cả phiếu đăng ký
