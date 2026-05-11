@@ -611,6 +611,8 @@
               <!-- Thêm giường -->
               <div 
                 class="bed-item {{#if duoc_chon}}selected{{/if}} {{#if (eq tinh_trang 'da_thue')}}unavailable{{/if}}"
+                data-bed-key="{{id_phong}}-{{id_giuong}}"
+                data-room-id="{{id_phong}}"
                 data-bed-id="{{id_giuong}}"
                 onclick="toggleBed(event, {{id_phong}}, {{id_giuong}})"
                 {{#if (eq tinh_trang 'da_thue')}}disabled{{/if}}>
@@ -673,7 +675,7 @@
 <script>
   let selectedBeds = new Set();
   let selectedRooms = new Set();
-  const loaiThue = '{{loai_thue}}';
+  let loaiThue = '{{loai_thue}}';
 
   // Khởi tạo selected items từ data
   {{#if daDangKy}}
@@ -690,27 +692,26 @@
 
   // Toggle bed (thuê theo giường) - CHỈ CHO PHÉP CHỌN 1 GIƯỜNG
   function toggleBed(event, idPhong, idGiuong) {
-    if (event.target.closest('.bed-item').classList.contains('unavailable')) {
+    // Check if bed is unavailable
+    const bedElement = event.currentTarget;
+    if (bedElement.classList.contains('unavailable')) {
       return;
     }
 
     const key = `${idPhong}-${idGiuong}`;
-    const bedElement = event.currentTarget;
 
     if (selectedBeds.has(key)) {
-      // Nếu đã chọn, bỏ chọn
+      // If already selected, deselect it
       selectedBeds.delete(key);
       bedElement.classList.remove('selected');
     } else {
-      // Nếu chưa chọn, xóa lựa chọn cũ và chọn cái mới
-      // Bỏ chọn tất cả giường khác
+      // If not selected, clear all other selections and select this one
+      // Deselect all other beds properly by using data-bed-key attribute
       selectedBeds.forEach(oldKey => {
-        const oldBedElements = document.querySelectorAll(`.bed-item[data-bed-id]`);
-        oldBedElements.forEach(el => {
-          if (el.getAttribute('onclick').includes(oldKey)) {
-            el.classList.remove('selected');
-          }
-        });
+        const oldBedElement = document.querySelector(`.bed-item[data-bed-key="${oldKey}"]`);
+        if (oldBedElement) {
+          oldBedElement.classList.remove('selected');
+        }
       });
       selectedBeds.clear();
       selectedBeds.add(key);
