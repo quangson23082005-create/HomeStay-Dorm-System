@@ -115,7 +115,6 @@
           <a href="/khach-hang" class="nav-link">Khách hàng</a>
           <a href="/lich-hen" class="nav-link">Lịch hẹn</a>
           <a href="/hop-dong" class="nav-link">Lập hợp đồng</a>
-          <a href="/checkout-schedules" class="nav-link">Xếp lịch trả phòng</a>
         {{/if}}
 
         {{!-- KẾ TOÁN --}}
@@ -138,54 +137,70 @@
           <a href="/dang-ky-thue" class="nav-link">Đăng ký thuê</a>
           <a href="/so-do-phong" class="nav-link">Sơ đồ phòng</a>
           <a href="/xac-nhan-thue" class="nav-link">Xác nhận thuê phòng</a>
-          
+          <a href="/tra-phong" class="nav-link">Xếp lịch trả phòng</a>
         {{/if}}
       </nav>
     </div>
 
-    <div class="header-right">
-      <span class="header-role-badge role-{{user.role}}">{{user.roleLabel}}</span>
+<header class="main-header">
+  <div class="header-left">
+    <a href="/dashboard" class="header-logo">
+      <div class="header-logo-icon">🏠</div>
+      <span class="header-logo-text">Homestay Dorm</span>
+    </a>
 
-      <div class="header-avatar" id="avatarBtn">
-        {{user.avatar}}
-        <div class="avatar-dropdown" id="avatarDropdown">
-          <div class="dropdown-info">
-            <div class="dropdown-name">{{user.ho_ten}}</div>
-            <div class="dropdown-role">{{user.roleLabel}}</div>
-          </div>
-          <a href="/logout" class="dropdown-logout">
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-            </svg>
-            Đăng xuất
-          </a>
+    <nav class="header-nav">
+      <a href="/dashboard" class="nav-link">Trang chủ</a>
+
+      {{!-- NHÂN VIÊN SALE --}}
+      {{#if (eq user.role "sale")}}
+      <a href="/khach-hang" class="nav-link">Khách hàng</a>
+      <a href="/lich-hen" class="nav-link">Lịch hẹn</a>
+      <a href="/hop-dong" class="nav-link">Lập hợp đồng</a>
+      {{/if}}
+
+      {{!-- KẾ TOÁN --}}
+      {{#if (eq user.role "ketoan")}}
+      <a href="/hoan-coc" class="nav-link">Hoàn cọc</a>
+      <a href="/xu-ly-khoan-thu" class="nav-link">Xử lý khoản thu</a>
+      {{/if}}
+
+      {{!-- QUẢN LÝ --}}
+      {{#if (eq user.role "quanly")}}
+      <a href="/lap-bien-ban" class="nav-link">Lập biên bản</a>
+      <a href="/thong-ke" class="nav-link">Thống kê</a>
+      <a href="/phe-duyet" class="nav-link">Phê duyệt</a>
+      <a href="/quan-ly" class="nav-link">Quản lý</a>
+      {{/if}}
+
+      {{!-- KHÁCH HÀNG --}}
+      {{#if (eq user.role "khachhang")}}
+      <a href="/dang-ky-thue" class="nav-link">Đăng ký thuê</a>
+      <a href="/so-do-phong" class="nav-link">Sơ đồ phòng</a>
+      <a href="/xac-nhan-thue-phong" class="nav-link">Xác nhận thuê phòng</a>
+      <a href="/tra-phong" class="nav-link">Xếp lịch trả phòng</a>
+      {{/if}}
+    </nav>
+  </div>
+
+  <div class="header-right">
+    <span class="header-role-badge role-{{user.role}}">{{user.roleLabel}}</span>
+
+    <div class="header-avatar" id="avatarBtn">
+      {{user.avatar}}
+      <div class="avatar-dropdown" id="avatarDropdown">
+        <div class="dropdown-info">
+          <div class="dropdown-name">{{user.ho_ten}}</div>
+          <div class="dropdown-role">{{user.roleLabel}}</div>
         </div>
+        
+        <a href="/logout" class="dropdown-logout">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          Đăng xuất
+        </a>
       </div>
     </div>
-  </header>
-
-  <main class="main-content">
-    {{{body}}}
-  </main>
-
-  <script>
-    const avatarBtn = document.getElementById('avatarBtn');
-    const dropdown = document.getElementById('avatarDropdown');
-    
-    avatarBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      dropdown.classList.toggle('open');
-    });
-
-    document.addEventListener('click', () => dropdown.classList.remove('open'));
-
-    // Active nav link theo URL hiện tại
-    const currentPath = window.location.pathname;
-    document.querySelectorAll('.nav-link').forEach(link => {
-      if (link.getAttribute('href') !== '/dashboard' && currentPath.startsWith(link.getAttribute('href'))) {
-        link.classList.add('active');
-      }
-    });
-  </script>
-</body>
-</html>
+  </div>
+</header>
