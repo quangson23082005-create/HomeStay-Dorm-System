@@ -520,137 +520,150 @@
 
   <!-- Danh sách phòng -->
   <div class="rooms-section">
-    <div class="section-header">
-      <div class="section-title">
-        <span>📋</span>
-        <span>Danh sách phòng đã đăng ký</span>
-      </div>
-    </div>
-
-    <!-- Phiếu tabs -->
-    <div style="margin-bottom: 20px;">
-      {{#if danhSachPhieu}}
-        <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
-          {{#each danhSachPhieu}}
-            <button 
-              class="tab {{#if (eq id_phieu ../id_phieu)}}active{{/if}}"
-              onclick="changePhieu({{id_phieu}}, '{{loai_thue}}')">
-              Phiếu {{id_phieu}}
-            </button>
-          {{/each}}
+    {{#if isPhieuDaXacNhan}}
+      <!-- Phiếu đã được xác nhận -->
+      <div style="background: #d1fae5; border-left: 4px solid #10b981; padding: 16px; border-radius: 8px; text-align: center;">
+        <div style="font-size: 18px; font-weight: 700; color: #065f46; margin-bottom: 8px;">
+          ✓ Phiếu đã được xác nhận
         </div>
-      {{/if}}
-    </div>
-
-    <!-- Tabs: Thuê theo giường / Thuê nguyên căn -->
-    <div class="tabs">
-      <button 
-        class="tab {{#if (eq loai_thue 'ghep')}}active{{/if}}"
-        onclick="changeTab('ghep')">
-        Thuê theo giường
-      </button>
-      <button 
-        class="tab {{#unless (eq loai_thue 'ghep')}}active{{/unless}}"
-        onclick="changeTab('nguyen_can')">
-        Thuê nguyên căn
-      </button>
-    </div>
-
-    <!-- Search -->
-    <div class="search-box" style="display: flex; gap: 12px; align-items: flex-end;">
-      <div style="flex: 1; max-width: 400px;">
-        <input 
-          type="text" 
-          class="search-input" 
-          id="searchInput" 
-          placeholder="Tìm số phòng..."
-          onkeyup="filterRooms()"
-          style="width: 100%;">
+        <div style="font-size: 14px; color: #047857;">
+          Bạn đã hoàn thành việc xác nhận lựa chọn phòng/giường. Không cần thực hiện hành động tiếp theo.
+        </div>
       </div>
-      <button class="btn btn-primary" onclick="filterRooms()" style="padding: 10px 16px; font-size: 13px;">
-        🔍 Tìm kiếm
-      </button>
-    </div>
+    {{else}}
+      <!-- Phiếu chưa xác nhận - Hiển thị danh sách -->
+      <div class="section-header">
+        <div class="section-title">
+          <span>📋</span>
+          <span>Danh sách phòng đã đăng ký</span>
+        </div>
+      </div>
 
-    <!-- Rooms Grid -->
-    <div class="rooms-grid" id="roomsGrid">
-      {{#if daDangKy}}
-        {{#if (eq loai_thue 'ghep')}}
-          <!-- Thuê theo giường: Nhóm theo phòng -->
-          {{#each daDangKy}}
-            {{#if (eq @index 0)}}
-              <!-- Tạo card mới cho phòng đầu tiên -->
-              <div class="room-card" data-room-id="{{id_phong}}" data-room-code="P{{id_phong}}">
-                <div class="room-code">P{{id_phong}}</div>
-                <div class="room-floor">Tầng {{tang}}</div>
-                <div class="room-type">Phòng {{loai_phong}} {{so_luong_giuong}} giường</div>
-                <div class="beds-grid">
-            {{else if (ne id_phong @first.id_phong)}}
-              <!-- Kết thúc card trước, tạo card mới -->
-                </div>
-              </div>
-              <div class="room-card" data-room-id="{{id_phong}}" data-room-code="P{{id_phong}}">
-                <div class="room-code">P{{id_phong}}</div>
-                <div class="room-floor">Tầng {{tang}}</div>
-                <div class="room-type">Phòng {{loai_phong}} {{so_luong_giuong}} giường</div>
-                <div class="beds-grid">
-            {{/if}}
-            
-            <!-- Thêm giường -->
-            <div 
-              class="bed-item {{#if duoc_chon}}selected{{/if}} {{#if (eq tinh_trang 'da_thue')}}unavailable{{/if}}"
-              data-bed-id="{{id_giuong}}"
-              onclick="toggleBed(event, {{id_phong}}, {{id_giuong}})"
-              {{#if (eq tinh_trang 'da_thue')}}disabled{{/if}}>
-              <div class="bed-icon">👤</div>
-              <div class="bed-number">{{id_giuong}}</div>
-            </div>
-            
-            {{#if @last}}
-              <!-- Kết thúc card cuối cùng -->
-                </div>
-              </div>
-            {{/if}}
-          {{/each}}
-        {{else}}
-          <!-- Thuê nguyên căn: Mỗi phòng là 1 card -->
-          {{#each daDangKy}}
-            <div 
-              class="room-card {{#if duoc_chon}}selected{{/if}}"
-              data-room-id="{{id_phong}}"
-              data-room-code="P{{id_phong}}"
-              onclick="toggleRoom(event, {{id_phong}})">
-              <div class="room-code">P{{id_phong}}</div>
-              <div class="room-floor">Tầng {{tang}}</div>
-              <div class="room-type">Phòng {{loai_phong}} {{so_luong_giuong}} giường</div>
-            </div>
-          {{/each}}
+      <!-- Phiếu tabs -->
+      <div style="margin-bottom: 20px;">
+        {{#if danhSachPhieu}}
+          <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
+            {{#each danhSachPhieu}}
+              <button 
+                class="tab {{#if (eq id_phieu ../id_phieu)}}active{{/if}}"
+                onclick="changePhieu({{id_phieu}}, '{{loai_thue}}')">
+                Phiếu {{id_phieu}}
+              </button>
+            {{/each}}
+          </div>
         {{/if}}
-      {{else}}
-        <p style="color: #9ca3af; grid-column: 1/-1; text-align: center; padding: 40px;">
-          Không có phòng/giường nào
-        </p>
-      {{/if}}
-    </div>
+      </div>
 
-    <!-- Thỏa thuận -->
-    <div class="agreement-section">
-      <input type="checkbox" class="agreement-checkbox" id="agreeCheckbox">
-      <span class="agreement-text">Đồng ý tuân thủ các điều kiện và nội quy</span>
-    </div>
+      <!-- Tabs: Thuê theo giường / Thuê nguyên căn -->
+      <div class="tabs">
+        <button 
+          class="tab {{#if (eq loai_thue 'ghep')}}active{{/if}}"
+          onclick="changeTab('ghep')">
+          Thuê theo giường
+        </button>
+        <button 
+          class="tab {{#unless (eq loai_thue 'ghep')}}active{{/unless}}"
+          onclick="changeTab('nguyen_can')">
+          Thuê nguyên căn
+        </button>
+      </div>
 
-    <!-- Buttons -->
-    <div class="action-buttons">
-      <form method="POST" action="/xac-nhan-thue-phong/huy" style="flex: 1; max-width: 150px;">
-        <button type="submit" class="btn btn-cancel">✕ Hủy</button>
-      </form>
-      <form id="confirmForm" method="POST" action="/xac-nhan-thue-phong/xac-nhan-chon-phong" style="flex: 1; max-width: 150px;">
-        <input type="hidden" name="id_phieu" id="hiddenPhieu" value="{{id_phieu}}">
-        <input type="hidden" name="loai_thue" id="hiddenLoaiThue" value="{{loai_thue}}">
-        <input type="hidden" name="danh_sach_chon" id="hiddenDanhSachChon" value="[]">
-        <button type="submit" class="btn btn-confirm" id="confirmBtn" disabled>✓ Xác nhận</button>
-      </form>
-    </div>
+      <!-- Search -->
+      <div class="search-box" style="display: flex; gap: 12px; align-items: flex-end;">
+        <div style="flex: 1; max-width: 400px;">
+          <input 
+            type="text" 
+            class="search-input" 
+            id="searchInput" 
+            placeholder="Tìm số phòng..."
+            onkeyup="filterRooms()"
+            style="width: 100%;">
+        </div>
+        <button class="btn btn-primary" onclick="filterRooms()" style="padding: 10px 16px; font-size: 13px;">
+          🔍 Tìm kiếm
+        </button>
+      </div>
+
+      <!-- Rooms Grid -->
+      <div class="rooms-grid" id="roomsGrid">
+        {{#if daDangKy}}
+          {{#if (eq loai_thue 'ghep')}}
+            <!-- Thuê theo giường: Nhóm theo phòng -->
+            {{#each daDangKy}}
+              {{#if (eq @index 0)}}
+                <!-- Tạo card mới cho phòng đầu tiên -->
+                <div class="room-card" data-room-id="{{id_phong}}" data-room-code="P{{id_phong}}">
+                  <div class="room-code">P{{id_phong}}</div>
+                  <div class="room-floor">Tầng {{tang}}</div>
+                  <div class="room-type">Phòng {{loai_phong}} {{so_luong_giuong}} giường</div>
+                  <div class="beds-grid">
+              {{else if (ne id_phong @first.id_phong)}}
+                <!-- Kết thúc card trước, tạo card mới -->
+                  </div>
+                </div>
+                <div class="room-card" data-room-id="{{id_phong}}" data-room-code="P{{id_phong}}">
+                  <div class="room-code">P{{id_phong}}</div>
+                  <div class="room-floor">Tầng {{tang}}</div>
+                  <div class="room-type">Phòng {{loai_phong}} {{so_luong_giuong}} giường</div>
+                  <div class="beds-grid">
+              {{/if}}
+              
+              <!-- Thêm giường -->
+              <div 
+                class="bed-item {{#if duoc_chon}}selected{{/if}} {{#if (eq tinh_trang 'da_thue')}}unavailable{{/if}}"
+                data-bed-id="{{id_giuong}}"
+                onclick="toggleBed(event, {{id_phong}}, {{id_giuong}})"
+                {{#if (eq tinh_trang 'da_thue')}}disabled{{/if}}>
+                <div class="bed-icon">👤</div>
+                <div class="bed-number">{{id_giuong}}</div>
+              </div>
+              
+              {{#if @last}}
+                <!-- Kết thúc card cuối cùng -->
+                  </div>
+                </div>
+              {{/if}}
+            {{/each}}
+          {{else}}
+            <!-- Thuê nguyên căn: Mỗi phòng là 1 card -->
+            {{#each daDangKy}}
+              <div 
+                class="room-card {{#if duoc_chon}}selected{{/if}}"
+                data-room-id="{{id_phong}}"
+                data-room-code="P{{id_phong}}"
+                onclick="toggleRoom(event, {{id_phong}})">
+                <div class="room-code">P{{id_phong}}</div>
+                <div class="room-floor">Tầng {{tang}}</div>
+                <div class="room-type">Phòng {{loai_phong}} {{so_luong_giuong}} giường</div>
+              </div>
+            {{/each}}
+          {{/if}}
+        {{else}}
+          <p style="color: #9ca3af; grid-column: 1/-1; text-align: center; padding: 40px;">
+            Không có phòng/giường nào
+          </p>
+        {{/if}}
+      </div>
+
+      <!-- Thỏa thuận -->
+      <div class="agreement-section">
+        <input type="checkbox" class="agreement-checkbox" id="agreeCheckbox">
+        <span class="agreement-text">Đồng ý tuân thủ các điều kiện và nội quy</span>
+      </div>
+
+      <!-- Buttons -->
+      <div class="action-buttons">
+        <form method="POST" action="/xac-nhan-thue-phong/huy" style="flex: 1; max-width: 150px;">
+          <button type="submit" class="btn btn-cancel">✕ Hủy</button>
+        </form>
+        <form id="confirmForm" method="POST" action="/xac-nhan-thue-phong/xac-nhan-chon-phong" style="flex: 1; max-width: 150px;">
+          <input type="hidden" name="id_phieu" id="hiddenPhieu" value="{{id_phieu}}">
+          <input type="hidden" name="loai_thue" id="hiddenLoaiThue" value="{{loai_thue}}">
+          <input type="hidden" name="danh_sach_chon" id="hiddenDanhSachChon" value="[]">
+          <button type="submit" class="btn btn-confirm" id="confirmBtn" disabled>✓ Xác nhận</button>
+        </form>
+      </div>
+    {{/if}}
   </div>
 </div>
 
@@ -675,7 +688,7 @@
     {{/each}}
   {{/if}}
 
-  // Toggle bed (thuê theo giường)
+  // Toggle bed (thuê theo giường) - CHỈ CHO PHÉP CHỌN 1 GIƯỜNG
   function toggleBed(event, idPhong, idGiuong) {
     if (event.target.closest('.bed-item').classList.contains('unavailable')) {
       return;
@@ -685,9 +698,21 @@
     const bedElement = event.currentTarget;
 
     if (selectedBeds.has(key)) {
+      // Nếu đã chọn, bỏ chọn
       selectedBeds.delete(key);
       bedElement.classList.remove('selected');
     } else {
+      // Nếu chưa chọn, xóa lựa chọn cũ và chọn cái mới
+      // Bỏ chọn tất cả giường khác
+      selectedBeds.forEach(oldKey => {
+        const oldBedElements = document.querySelectorAll(`.bed-item[data-bed-id]`);
+        oldBedElements.forEach(el => {
+          if (el.getAttribute('onclick').includes(oldKey)) {
+            el.classList.remove('selected');
+          }
+        });
+      });
+      selectedBeds.clear();
       selectedBeds.add(key);
       bedElement.classList.add('selected');
     }
@@ -695,14 +720,24 @@
     updateConfirmButton();
   }
 
-  // Toggle room (thuê nguyên căn)
+  // Toggle room (thuê nguyên căn) - CHỈ CHO PHÉP CHỌN 1 PHÒNG
   function toggleRoom(event, idPhong) {
     const roomElement = event.currentTarget;
 
     if (selectedRooms.has(idPhong)) {
+      // Nếu đã chọn, bỏ chọn
       selectedRooms.delete(idPhong);
       roomElement.classList.remove('selected');
     } else {
+      // Nếu chưa chọn, xóa lựa chọn cũ và chọn cái mới
+      // Bỏ chọn tất cả phòng khác
+      selectedRooms.forEach(oldId => {
+        const oldRoomElements = document.querySelectorAll(`.room-card[data-room-id="${oldId}"]`);
+        oldRoomElements.forEach(el => {
+          el.classList.remove('selected');
+        });
+      });
+      selectedRooms.clear();
       selectedRooms.add(idPhong);
       roomElement.classList.add('selected');
     }

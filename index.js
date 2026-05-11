@@ -31,6 +31,7 @@ import './model/khachHangModel.js';
 import './model/phieuDangKyModel.js';
 import './model/phieuDangKyGhepModel.js';
 import './model/phieuDangKyNguyenCanModel.js';
+import './model/giuongModel.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const FileStore = FileStoreFactory(session);

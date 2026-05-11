@@ -2,6 +2,8 @@ import express from 'express';
 import {
   layThongTinKhachHang,
   layDanhSachPhongDaDangKy,
+  layDanhSachChuaXacNhan,
+  kiemTraPhieuDaXacNhan,
   xacNhanChonPhong,
 } from '../service/xacNhanThuePhongService.js';
 
@@ -13,14 +15,15 @@ const DEFAULT_KHACH_HANG_ID = 1000;
 // ── Helper dựng view model ────────────────────────────────────────────────────
 const buildViewModel = (data = {}) => ({
   title: 'Xác nhận thuê phòng',
-  khachHang:        data.khachHang        || null,
-  danhSachPhieu:    data.danhSachPhieu    || [],
-  loai_thue:        data.loai_thue        || 'ghep',
-  id_phieu:         data.id_phieu         || null,
-  daDangKy:         data.daDangKy         || [],
-  giuongTheoPhong:  data.giuongTheoPhong  || {},
-  success:          data.success          || '',
-  error:            data.error            || '',
+  khachHang:            data.khachHang            || null,
+  danhSachPhieu:        data.danhSachPhieu        || [],
+  loai_thue:            data.loai_thue            || 'ghep',
+  id_phieu:             data.id_phieu             || null,
+  daDangKy:             data.daDangKy             || [],
+  giuongTheoPhong:      data.giuongTheoPhong      || {},
+  isPhieuDaXacNhan:     data.isPhieuDaXacNhan     || false,
+  success:              data.success              || '',
+  error:                data.error                || '',
 });
 
 // ── GET / ─────────────────────────────────────────────────────────────────────
@@ -35,11 +38,20 @@ router.get('/xac-nhan-thue-phong', async (req, res) => {
     const id_phieu = phieuDauTien?.id_phieu || null;
     const loai_thue = phieuDauTien?.loai_thue || 'ghep';
 
-    // Load danh sách phòng/giường cho phiếu mặc định
+    // Kiểm tra xem phiếu đã xác nhận chưa
+    let isPhieuDaXacNhan = false;
     let daDangKy = [];
+    let giuongTheoPhong = {};
+    
     if (id_phieu) {
-      const result = await layDanhSachPhongDaDangKy(id_phieu, DEFAULT_KHACH_HANG_ID, loai_thue);
-      daDangKy = result.daDangKy || [];
+      isPhieuDaXacNhan = await kiemTraPhieuDaXacNhan(id_phieu, loai_thue);
+      
+      // Nếu chưa xác nhận, lấy danh sách chưa xác nhận
+      if (!isPhieuDaXacNhan) {
+        const result = await layDanhSachChuaXacNhan(id_phieu, DEFAULT_KHACH_HANG_ID, loai_thue);
+        daDangKy = result.daDangKy || [];
+        giuongTheoPhong = result.giuongTheoPhong || {};
+      }
     }
 
     res.render('xac-nhan-thue-phong', buildViewModel({
@@ -48,6 +60,8 @@ router.get('/xac-nhan-thue-phong', async (req, res) => {
       loai_thue,
       id_phieu,
       daDangKy,
+      giuongTheoPhong,
+      isPhieuDaXacNhan,
     }));
   } catch (error) {
     res.render('xac-nhan-thue-phong', buildViewModel({ error: error.message }));
@@ -65,8 +79,21 @@ router.post('/xac-nhan-thue-phong/load-phong', async (req, res) => {
     const { khachHang, danhSachPhieu } =
       await layThongTinKhachHang(DEFAULT_KHACH_HANG_ID);
 
-    const { daDangKy, giuongTheoPhong } =
-      await layDanhSachPhongDaDangKy(id_phieu, DEFAULT_KHACH_HANG_ID, loai_thue);
+    // Kiểm tra xem phiếu đã xác nhận chưa
+    let isPhieuDaXacNhan = false;
+    let daDangKy = [];
+    let giuongTheoPhong = {};
+    
+    if (id_phieu) {
+      isPhieuDaXacNhan = await kiemTraPhieuDaXacNhan(id_phieu, loai_thue);
+      
+      // Nếu chưa xác nhận, lấy danh sách chưa xác nhận
+      if (!isPhieuDaXacNhan) {
+        const result = await layDanhSachChuaXacNhan(id_phieu, DEFAULT_KHACH_HANG_ID, loai_thue);
+        daDangKy = result.daDangKy || [];
+        giuongTheoPhong = result.giuongTheoPhong || {};
+      }
+    }
 
     res.render('xac-nhan-thue-phong', buildViewModel({
       khachHang,
@@ -74,7 +101,8 @@ router.post('/xac-nhan-thue-phong/load-phong', async (req, res) => {
       loai_thue,
       id_phieu,
       daDangKy,
-      giuongTheoPhong: giuongTheoPhong || {},
+      giuongTheoPhong,
+      isPhieuDaXacNhan,
     }));
   } catch (error) {
     const { khachHang, danhSachPhieu } =
@@ -91,6 +119,7 @@ router.post('/xac-nhan-thue-phong/load-phong', async (req, res) => {
 // ── POST /xac-nhan-chon-phong ──────────────────────────────────────────────────
 // Nhấn "Xác nhận chọn phòng" → cập nhật duoc_chon = TRUE
 // Body: { id_phieu, loai_thue, danh_sach_chon: JSON string }
+// CHỈ CHO PHÉP CHỌN DUNG 1 PHONG/GIUONG
 router.post('/xac-nhan-thue-phong/xac-nhan-chon-phong', async (req, res) => {
   const id_phieu     = req.body.id_phieu    || null;
   const loai_thue    = req.body.loai_thue   || 'ghep';
@@ -103,6 +132,7 @@ router.post('/xac-nhan-thue-phong/xac-nhan-chon-phong', async (req, res) => {
   }
 
   try {
+    // Xác nhận lựa chọn (service sẽ kiểm tra chỉ có 1 lựa chọn)
     await xacNhanChonPhong(
       id_phieu,
       DEFAULT_KHACH_HANG_ID,
@@ -112,30 +142,43 @@ router.post('/xac-nhan-thue-phong/xac-nhan-chon-phong', async (req, res) => {
 
     const { khachHang, danhSachPhieu } =
       await layThongTinKhachHang(DEFAULT_KHACH_HANG_ID);
-    const { daDangKy, giuongTheoPhong } =
-      await layDanhSachPhongDaDangKy(id_phieu, DEFAULT_KHACH_HANG_ID, loai_thue);
+
+    // Phiếu vừa được xác nhận, nên không cần load daDangKy
+    const isPhieuDaXacNhan = true;
 
     res.render('xac-nhan-thue-phong', buildViewModel({
       khachHang,
       danhSachPhieu,
       loai_thue,
       id_phieu,
-      daDangKy,
-      giuongTheoPhong: giuongTheoPhong || {},
-      success: `Đã xác nhận ${danhSachChon.length} ${loai_thue === 'ghep' ? 'giường' : 'phòng'} thành công.`,
+      daDangKy: [],
+      giuongTheoPhong: {},
+      isPhieuDaXacNhan,
+      success: `Đã xác nhận 1 ${loai_thue === 'ghep' ? 'giường' : 'phòng'} thành công.`,
     }));
   } catch (error) {
     const { khachHang, danhSachPhieu } =
       await layThongTinKhachHang(DEFAULT_KHACH_HANG_ID).catch(() => ({
         khachHang: null, danhSachPhieu: [],
       }));
-    const { daDangKy, giuongTheoPhong } =
-      await layDanhSachPhongDaDangKy(id_phieu, DEFAULT_KHACH_HANG_ID, loai_thue)
-        .catch(() => ({ daDangKy: [], giuongTheoPhong: {} }));
+    
+    // Tải lại danh sách chưa xác nhận để hiển thị form lại
+    let daDangKy = [];
+    let giuongTheoPhong = {};
+    try {
+      if (id_phieu) {
+        const result = await layDanhSachChuaXacNhan(id_phieu, DEFAULT_KHACH_HANG_ID, loai_thue);
+        daDangKy = result.daDangKy || [];
+        giuongTheoPhong = result.giuongTheoPhong || {};
+      }
+    } catch (e) {
+      // Nếu lỗi khi lấy danh sách, để rỗng
+    }
 
     res.render('xac-nhan-thue-phong', buildViewModel({
       khachHang, danhSachPhieu, loai_thue, id_phieu,
-      daDangKy, giuongTheoPhong: giuongTheoPhong || {},
+      daDangKy, giuongTheoPhong,
+      isPhieuDaXacNhan: false,
       error: error.message,
     }));
   }
