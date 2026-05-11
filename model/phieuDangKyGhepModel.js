@@ -1,16 +1,20 @@
-import { DataTypes, Op } from 'sequelize';
-import sequelize from '../config/database.js';
+import { DataTypes, Op } from "sequelize";
+import sequelize from "../config/database.js";
 
 // Bảng phieu_dang_ky_ghep có composite PK (id_phieu, id_phong, id_giuong)
-const PhieuDangKyGhep = sequelize.define('phieu_dang_ky_ghep', {
-  id_phieu:  { type: DataTypes.INTEGER, primaryKey: true },
-  id_phong:  { type: DataTypes.INTEGER, primaryKey: true },
-  id_giuong: { type: DataTypes.INTEGER, primaryKey: true },
-  duoc_chon: { type: DataTypes.BOOLEAN, defaultValue: false },
-}, {
-  timestamps: false,
-  tableName: 'phieu_dang_ky_ghep',
-});
+const PhieuDangKyGhep = sequelize.define(
+  "phieu_dang_ky_ghep",
+  {
+    id_phieu: { type: DataTypes.INTEGER, primaryKey: true },
+    id_phong: { type: DataTypes.INTEGER, primaryKey: true },
+    id_giuong: { type: DataTypes.INTEGER, primaryKey: true },
+    duoc_chon: { type: DataTypes.BOOLEAN, defaultValue: false },
+  },
+  {
+    timestamps: false,
+    tableName: "phieu_dang_ky_ghep",
+  },
+);
 
 // Lấy danh sách giường đã đăng ký theo id_phieu,
 // JOIN thêm thông tin phòng và giường
@@ -32,7 +36,7 @@ export const layTheoPhieu = async (id_phieu) => {
                    AND pdkg.id_phong = g.id_phong
      WHERE pdkg.id_phieu = :id_phieu
      ORDER BY pdkg.id_phong, pdkg.id_giuong`,
-    { replacements: { id_phieu } }
+    { replacements: { id_phieu } },
   );
   return rows;
 };
@@ -44,7 +48,7 @@ export const layGiuongTrongPhong = async (id_phong) => {
      FROM giuong
      WHERE id_phong = :id_phong
      ORDER BY id_giuong`,
-    { replacements: { id_phong } }
+    { replacements: { id_phong } },
   );
   return rows;
 };
@@ -57,7 +61,7 @@ export const capNhatDuocChon = async (id_phieu, id_phong, id_giuong) => {
      WHERE id_phieu  = :id_phieu
        AND id_phong  = :id_phong
        AND id_giuong = :id_giuong`,
-    { replacements: { id_phieu, id_phong, id_giuong } }
+    { replacements: { id_phieu, id_phong, id_giuong } },
   );
   return affectedRows;
 };
@@ -67,8 +71,20 @@ export const capNhatDuocChonNhieu = async (id_phieu, danhSachChon) => {
   // danhSachChon: [{ id_phong, id_giuong }, ...]
   const results = await Promise.all(
     danhSachChon.map(({ id_phong, id_giuong }) =>
-      capNhatDuocChon(id_phieu, id_phong, id_giuong)
-    )
+      capNhatDuocChon(id_phieu, id_phong, id_giuong),
+    ),
   );
   return results;
+};
+
+// Kiểm tra xem có bất kỳ giường nào trong phiếu đã được xác nhận (duoc_chon = TRUE)
+export const hasAnySelected = async (id_phieu) => {
+  const [rows] = await sequelize.query(
+    `SELECT COUNT(*)::int AS cnt
+     FROM phieu_dang_ky_ghep
+     WHERE id_phieu = :id_phieu
+       AND duoc_chon = TRUE`,
+    { replacements: { id_phieu } },
+  );
+  return (rows[0] && Number(rows[0].cnt) > 0) || false;
 };

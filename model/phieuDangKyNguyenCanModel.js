@@ -1,14 +1,18 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../config/database.js';
+import { DataTypes } from "sequelize";
+import sequelize from "../config/database.js";
 
-const PhieuDangKyNguyenCan = sequelize.define('phieu_dang_ky_nguyen_can', {
-  id_phieu:  { type: DataTypes.INTEGER, primaryKey: true },
-  id_phong:  { type: DataTypes.INTEGER, primaryKey: true },
-  duoc_chon: { type: DataTypes.BOOLEAN, defaultValue: false },
-}, {
-  timestamps: false,
-  tableName: 'phieu_dang_ky_nguyen_can',
-});
+const PhieuDangKyNguyenCan = sequelize.define(
+  "phieu_dang_ky_nguyen_can",
+  {
+    id_phieu: { type: DataTypes.INTEGER, primaryKey: true },
+    id_phong: { type: DataTypes.INTEGER, primaryKey: true },
+    duoc_chon: { type: DataTypes.BOOLEAN, defaultValue: false },
+  },
+  {
+    timestamps: false,
+    tableName: "phieu_dang_ky_nguyen_can",
+  },
+);
 
 // Lấy danh sách phòng đã đăng ký theo id_phieu, JOIN thêm thông tin phòng
 export const layTheoPhieu = async (id_phieu) => {
@@ -26,7 +30,7 @@ export const layTheoPhieu = async (id_phieu) => {
      JOIN phong p ON pdknc.id_phong = p.id_phong
      WHERE pdknc.id_phieu = :id_phieu
      ORDER BY pdknc.id_phong`,
-    { replacements: { id_phieu } }
+    { replacements: { id_phieu } },
   );
   return rows;
 };
@@ -38,7 +42,7 @@ export const capNhatDuocChon = async (id_phieu, id_phong) => {
      SET duoc_chon = TRUE
      WHERE id_phieu = :id_phieu
        AND id_phong = :id_phong`,
-    { replacements: { id_phieu, id_phong } }
+    { replacements: { id_phieu, id_phong } },
   );
   return affectedRows;
 };
@@ -47,9 +51,19 @@ export const capNhatDuocChon = async (id_phieu, id_phong) => {
 export const capNhatDuocChonNhieu = async (id_phieu, danhSachIdPhong) => {
   // danhSachIdPhong: [id_phong, ...]
   const results = await Promise.all(
-    danhSachIdPhong.map((id_phong) =>
-      capNhatDuocChon(id_phieu, id_phong)
-    )
+    danhSachIdPhong.map((id_phong) => capNhatDuocChon(id_phieu, id_phong)),
   );
   return results;
+};
+
+// Kiểm tra xem có bất kỳ phòng nào trong phiếu đã được xác nhận (duoc_chon = TRUE)
+export const hasAnySelected = async (id_phieu) => {
+  const [rows] = await sequelize.query(
+    `SELECT COUNT(*)::int AS cnt
+     FROM phieu_dang_ky_nguyen_can
+     WHERE id_phieu = :id_phieu
+       AND duoc_chon = TRUE`,
+    { replacements: { id_phieu } },
+  );
+  return (rows[0] && Number(rows[0].cnt) > 0) || false;
 };

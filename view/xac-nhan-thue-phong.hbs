@@ -527,6 +527,12 @@
       </div>
     </div>
 
+    {{#if daXacNhan}}
+      <div style="padding:24px; text-align:center; color:#065f46; background:#ecfdf5; border-radius:8px;">
+        <strong>Bạn đã xác nhận lựa chọn. Danh sách phòng/giường không còn hiển thị.</strong>
+      </div>
+    {{else}}
+
     <!-- Phiếu tabs -->
     <div style="margin-bottom: 20px;">
       {{#if danhSachPhieu}}
@@ -651,6 +657,7 @@
         <button type="submit" class="btn btn-confirm" id="confirmBtn" disabled>✓ Xác nhận</button>
       </form>
     </div>
+    {{/if}}
   </div>
 </div>
 
@@ -677,45 +684,49 @@
 
   // Toggle bed (thuê theo giường)
   function toggleBed(event, idPhong, idGiuong) {
-    if (event.target.closest('.bed-item').classList.contains('unavailable')) {
-      return;
-    }
+    const el = event.currentTarget || event.target.closest('.bed-item');
+    if (!el || el.classList.contains('unavailable')) return;
 
+    // Only allow a single bed to be selected: clear previous selections
     const key = `${idPhong}-${idGiuong}`;
-    const bedElement = event.currentTarget;
-
+    // if already selected, unselect
     if (selectedBeds.has(key)) {
       selectedBeds.delete(key);
-      bedElement.classList.remove('selected');
+      el.classList.remove('selected');
     } else {
+      // clear visual selection on other beds
+      document.querySelectorAll('.bed-item.selected').forEach(b => b.classList.remove('selected'));
+      selectedBeds.clear();
       selectedBeds.add(key);
-      bedElement.classList.add('selected');
+      el.classList.add('selected');
     }
-
     updateConfirmButton();
   }
 
   // Toggle room (thuê nguyên căn)
   function toggleRoom(event, idPhong) {
-    const roomElement = event.currentTarget;
+    const roomElement = event.currentTarget || event.target.closest('.room-card');
+    if (!roomElement) return;
 
     if (selectedRooms.has(idPhong)) {
       selectedRooms.delete(idPhong);
       roomElement.classList.remove('selected');
     } else {
+      // only one room allowed
+      document.querySelectorAll('.room-card.selected').forEach(r => r.classList.remove('selected'));
+      selectedRooms.clear();
       selectedRooms.add(idPhong);
       roomElement.classList.add('selected');
     }
-
     updateConfirmButton();
   }
 
   // Cập nhật nút xác nhận
   function updateConfirmButton() {
     const hasSelection = loaiThue === 'ghep' ? selectedBeds.size > 0 : selectedRooms.size > 0;
-    const isAgreed = document.getElementById('agreeCheckbox').checked;
-
-    document.getElementById('confirmBtn').disabled = !hasSelection || !isAgreed;
+    const isAgreed = document.getElementById('agreeCheckbox') && document.getElementById('agreeCheckbox').checked;
+    const confirmBtn = document.getElementById('confirmBtn');
+    if (confirmBtn) confirmBtn.disabled = !hasSelection || !isAgreed;
 
     // Cập nhật hidden input
     if (loaiThue === 'ghep') {
